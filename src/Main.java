@@ -4,6 +4,29 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+        System.out.println("=== Hospital Management System ===");
+        System.out.println("1. Pharmacy Department");
+        System.out.println("2. Emergency Care Department");
+        System.out.print("Choose department: ");
+        int choice = Integer.parseInt(sc.nextLine());
+
+        switch (choice) {
+            case 1:
+                runPharmacy(sc);
+                break;
+            case 2:
+                runEmergency(sc);
+                break;
+            default:
+                System.out.println("Invalid choice.");
+        }
+
+        sc.close();
+    }
+
+    public static void runPharmacy(Scanner sc) {
+        System.out.println("\n=== Pharmacy Department ===");
+
         System.out.print("Enter patient name: ");
         String patientName = sc.nextLine();
 
@@ -17,5 +40,54 @@ public class Main {
         Pharmacist pharmacist = new Pharmacist("Aadi", "P001");
 
         pharmacist.dispenseMedication(patient, medicineName, quantity);
+    }
+
+    public static void runEmergency(Scanner sc) {
+        System.out.println("\n=== Emergency Care Department ===");
+
+        FileHandler fileHandler = new FileHandler("emergency_records.txt");
+
+        System.out.print("Is the patient unconscious? (yes/no): ");
+        String unconsciousInput = sc.nextLine().trim().toLowerCase();
+
+        String infoSource;
+        if (unconsciousInput.equals("yes")) {
+            infoSource = "Companion";
+            System.out.println("Companion will provide patient information.");
+        } else {
+            infoSource = "Patient";
+        }
+
+        System.out.print("Enter patient name: ");
+        String name = sc.nextLine();
+
+        int age;
+        while (true) {
+            System.out.print("Enter patient age: ");
+            try {
+                age = Integer.parseInt(sc.nextLine());
+                if (age > 0) {
+                    break;
+                } else {
+                    System.out.println("Age must be greater than 0.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid age. Please enter a valid number.");
+            }
+        }
+
+        System.out.print("Enter contact number: ");
+        String contactNum = sc.nextLine();
+
+        System.out.print("Enter chief complaint (reason for visit): ");
+        String complaint = sc.nextLine();
+
+        Patient patient = new Patient(name, age, contactNum);
+        EmergencyRecord record = new EmergencyRecord(complaint, infoSource);
+
+        fileHandler.writeRecord(record.toFileString(patient));
+
+        System.out.println("Registration confirmed.");
+        System.out.println("Generated Patient ID: " + record.getPatientID());
     }
 }
