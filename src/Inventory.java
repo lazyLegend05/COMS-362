@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Inventory {
-    private String fileName = "inventory.txt";
+    private String fileName = "src/inventory.txt";
 
     public boolean checkAvailability(String medicineName, int requiredQty) {
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
