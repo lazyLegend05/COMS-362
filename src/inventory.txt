@@ -1,0 +1,4 @@
+Paracetamol,20
+Ibuprofen,15
+Amoxicillin,10
+Cetirizine,25
