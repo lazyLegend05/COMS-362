@@ -7,6 +7,7 @@ public class Main {
         System.out.println("=== Hospital Management System ===");
         System.out.println("1. Pharmacy Department");
         System.out.println("2. Emergency Care Department");
+        System.out.println("3. Laboratory Department");
         System.out.print("Choose department: ");
         int choice = Integer.parseInt(sc.nextLine());
 
@@ -16,6 +17,9 @@ public class Main {
                 break;
             case 2:
                 runEmergency(sc);
+                break;
+            case 3:
+                runLab(sc);
                 break;
             default:
                 System.out.println("Invalid choice.");
@@ -89,5 +93,43 @@ public class Main {
 
         System.out.println("Registration confirmed.");
         System.out.println("Generated Patient ID: " + record.getPatientID());
+    }
+
+    public static void runLab(Scanner sc) {
+    	System.out.println("\n=== Laboratory Department ===");
+    	
+    	FileHandler fileHandler  = new FileHandler("lab.txt");
+    	
+    	System.out.print("Enter patient name: ");
+    	String name = sc.nextLine();
+    	
+    	int age;
+    	while (true) {
+    		System.out.print("Enter patient age: ");
+    		
+    		try {
+    			age = Integer.parseInt(sc.nextLine());
+    			if (age > 0) {
+    				break;
+    			} else {
+    				System.out.println("Age must be greater than 0.");
+    			}
+    		} catch (NumberFormatException e) {
+    			System.out.println("Invalid age. Please enter a valid number");
+    		}
+    	}
+    	
+    	System.out.print("Enter Phone Number: ");
+    	String contact = sc.nextLine();
+    	
+    	System.out.print("Enter Test Type: ");
+    	String test = sc.nextLine();
+    	
+    	Patient patient = new Patient(name, age, contact);
+    	LabStaff labStaff = new LabStaff("Billy", "LS001", "Lab Tech");
+    	
+    	labStaff.registerLabTest(patient, test, fileHandler);
+    	
+    	System.out.println("Lab test request complete");
     }
 }
