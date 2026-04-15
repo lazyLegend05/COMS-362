@@ -1,0 +1,13 @@
+# Compiled class files
+*.class
+
+# IntelliJ IDEA build output
+out/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
