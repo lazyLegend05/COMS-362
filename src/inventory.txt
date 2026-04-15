@@ -1,5 +1,5 @@
-Paracetamol,25
-Ibuprofen,15
+Paracetamol,20
+Ibuprofen,10
 Amoxicillin,10
 Cetirizine,25
 Melatonin, 25
