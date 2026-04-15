@@ -10,7 +10,7 @@ public class Main {
         System.out.println("1. Pharmacy Department");
         System.out.println("2. Emergency Care Department");
         System.out.println("3. Laboratory Department");
-        System.out.println("4. Radiology Department");
+        System.out.println("4. Radiology / Imaging Department");
         System.out.print("Choose department: ");
         int choice = Integer.parseInt(sc.nextLine());
 
