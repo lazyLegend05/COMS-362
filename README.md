@@ -11,3 +11,5 @@ Tanisha Magikar (tmagikar@iastate.edu): Emergency Care Department
 
 Aadi Shah (aadishah@iastate.edu): Pharmacy Department
 
+Ben Flude (b3nflude@iastate.edu): Radiology / Imaging Department
+
