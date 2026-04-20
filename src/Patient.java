@@ -28,4 +28,8 @@ public class Patient {
     public String getContactNum() {
         return contactNum;
     }
+
+    public String getPhoneNumber() {
+        return contactNum;
+    }
 }

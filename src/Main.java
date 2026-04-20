@@ -11,6 +11,7 @@ public class Main {
         System.out.println("2. Emergency Care Department");
         System.out.println("3. Laboratory Department");
         System.out.println("4. Radiology / Imaging Department");
+        System.out.println("5. ICU Department");
         System.out.print("Choose department: ");
         int choice = Integer.parseInt(sc.nextLine());
 
@@ -26,6 +27,9 @@ public class Main {
                 break;
             case 4:
                 runRadiology(sc);
+                break;
+            case 5:
+                runICU(sc);
                 break;
             default:
                 System.out.println("Invalid choice.");
@@ -201,7 +205,45 @@ public class Main {
 			}
 		}
 
-    	
+
     }
-    
+
+    public static void runICU(Scanner sc) {
+        System.out.println("\n=== ICU Department ===");
+
+        System.out.print("Enter nurse username: ");
+        String username = sc.nextLine();
+
+        System.out.print("Enter staffID: ");
+        String staffID = sc.nextLine();
+
+        ICUNurse nurse = new ICUNurse(username, staffID);
+
+        System.out.print("Enter patient name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter age: ");
+        int age = Integer.parseInt(sc.nextLine());
+
+        System.out.print("Enter phone number: ");
+        String phone = sc.nextLine();
+
+        System.out.print("Enter department transferred from: ");
+        String transferredFrom = sc.nextLine();
+
+        System.out.print("Enter reason for ICU admission: ");
+        String reason = sc.nextLine();
+
+        System.out.print("Enter room/bed number: ");
+        String room = sc.nextLine();
+
+        ICURecord record = new ICURecord(transferredFrom, reason);
+        record.assignBed(room);
+
+        Patient patient = new Patient(name, age, phone);
+        FileHandler fh = new FileHandler("icuPatients.txt");
+
+        nurse.admitPatient(patient, record, fh);
+    }
+
 }

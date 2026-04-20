@@ -28,4 +28,8 @@ public class FileHandler {
             System.out.println("No records found.");
         }
     }
+
+    public void confirmAdmission(String patientID) {
+        System.out.println("Patient admitted successfully! ID: " + patientID);
+    }
 }
