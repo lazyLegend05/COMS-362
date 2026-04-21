@@ -221,10 +221,10 @@ public class Main {
         System.out.println("\n=== ICU Department ===");
 
         System.out.print("Enter nurse username: ");
-        String username = readNonEmptyString(sc);
+        String username = readICUString(sc);
 
         System.out.print("Enter staffID: ");
-        String staffID = readNonEmptyString(sc);
+        String staffID = readICUString(sc);
 
         ICUNurse nurse = new ICUNurse(username, staffID);
 
@@ -243,23 +243,27 @@ public class Main {
     }
 
     public static void admitICUPatient(Scanner sc, ICUNurse nurse) {
+        System.out.println("\n--- Current ICU Patients ---");
+        new FileHandler("icuPatients.txt").readRecords();
+        System.out.println("----------------------------\n");
+
         System.out.print("Enter patient name: ");
-        String name = readNonEmptyString(sc);
+        String name = readICUString(sc);
 
         System.out.print("Enter age: ");
-        int age = readPositiveInt(sc);
+        int age = readBoundedAge(sc);
 
         System.out.print("Enter phone number: ");
-        String phone = readNonEmptyString(sc);
+        String phone = readPhoneNumber(sc);
 
         System.out.print("Enter department transferred from: ");
-        String transferredFrom = readNonEmptyString(sc);
+        String transferredFrom = readICUString(sc);
 
         System.out.print("Enter reason for ICU admission: ");
-        String reason = readNonEmptyString(sc);
+        String reason = readICUString(sc);
 
         System.out.print("Enter room/bed number: ");
-        String room = readNonEmptyString(sc);
+        String room = readICUString(sc);
 
         ICURecord record = new ICURecord(transferredFrom, reason);
         record.assignBed(room);
@@ -271,17 +275,71 @@ public class Main {
     }
 
     public static void assignICUNurse(Scanner sc, ICUNurse nurse) {
+        System.out.println("\n--- Current ICU Patients ---");
+        new FileHandler("icuPatients.txt").readRecords();
+        System.out.println("----------------------------");
+
+        System.out.println("\n--- Available Nurses ---");
+        new FileHandler("icuNurses.txt").readRecords();
+        System.out.println("-----------------------\n");
+
         System.out.print("Enter patient ID: ");
-        String patientID = readNonEmptyString(sc);
+        String patientID = readICUPatientID(sc);
 
         System.out.print("Enter nurse ID to assign: ");
-        String nurseID = readNonEmptyString(sc);
+        String nurseID = readNurseFileID(sc);
 
         FileHandler patientFile = new FileHandler("icuPatients.txt");
         FileHandler nurseFile = new FileHandler("icuNurses.txt");
 
         nurse.assignNurseToPatient(patientID, nurseID, patientFile, nurseFile);
     }
+
+    public static String readICUString(Scanner sc) {
+        return readNonEmptyString(sc).replace(",", "");
+    }
+
+    public static int readBoundedAge(Scanner sc) {
+        while (true) {
+            int age = readPositiveInt(sc);
+            if (age <= 150) {
+                return age;
+            }
+            System.out.print("Age must be 150 or under. Try again: ");
+        }
+    }
+
+    public static String readPhoneNumber(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim();
+            String digitsOnly = input.replaceAll("[\\s\\-()+]", "");
+            if (input.matches("[\\d\\s\\-()+]+") && digitsOnly.length() == 10) {
+                return input;
+            }
+            System.out.print("Invalid phone number. Must be 10 digits (e.g. 515-555-1234): ");
+        }
+    }
+
+    public static String readICUPatientID(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim();
+            if (input.startsWith("ICU") && input.length() > 3) {
+                return input;
+            }
+            System.out.print("Invalid patient ID. Must start with 'ICU' (e.g. ICU1234567890): ");
+        }
+    }
+
+    public static String readNurseFileID(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim();
+            if (input.matches("N\\d+")) {
+                return input;
+            }
+            System.out.print("Invalid nurse ID. Must be N followed by digits (e.g. N001): ");
+        }
+    }
+
     public static int readPositiveInt(Scanner sc) {
         while (true) {
             String input = sc.nextLine().trim();
