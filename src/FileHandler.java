@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 public class FileHandler {
     private String fileName;
@@ -55,12 +56,61 @@ public class FileHandler {
         }
     }
 
+    public String findRecord(String id) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith(id + ",")) {
+                    return line;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+        }
+        return null;
+    }
+
+    public void updateRecord(String id, String updatedLine) {
+        List<String> lines = new ArrayList<>();
+        boolean found = false;
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith(id + ",")) {
+                    lines.add(updatedLine);
+                    found = true;
+                } else {
+                    lines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+            return;
+        }
+        if (!found) {
+            System.out.println("Record not found for update.");
+            return;
+        }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, false))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing file.");
+        }
+    }
+
     public void confirmAdmission(String patientID) {
         if (patientID == null || patientID.trim().isEmpty()) {
             System.out.println("Invalid patient ID.");
             return;
         }
         System.out.println("Patient admitted successfully! ID: " + patientID);
+    }
+
+    public void confirmAssignment() {
+        System.out.println("Nurse assigned to patient successfully.");
     }
 
     public String getFileName() {

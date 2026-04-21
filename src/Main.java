@@ -228,6 +228,21 @@ public class Main {
 
         ICUNurse nurse = new ICUNurse(username, staffID);
 
+        System.out.println("1. Admit patient");
+        System.out.println("2. Assign nurse to patient");
+        System.out.print("Choose action: ");
+        int action = readPositiveInt(sc);
+
+        if (action == 1) {
+            admitICUPatient(sc, nurse);
+        } else if (action == 2) {
+            assignICUNurse(sc, nurse);
+        } else {
+            System.out.println("Invalid choice.");
+        }
+    }
+
+    public static void admitICUPatient(Scanner sc, ICUNurse nurse) {
         System.out.print("Enter patient name: ");
         String name = readNonEmptyString(sc);
 
@@ -255,6 +270,18 @@ public class Main {
         nurse.admitPatient(patient, record, fh);
     }
 
+    public static void assignICUNurse(Scanner sc, ICUNurse nurse) {
+        System.out.print("Enter patient ID: ");
+        String patientID = readNonEmptyString(sc);
+
+        System.out.print("Enter nurse ID to assign: ");
+        String nurseID = readNonEmptyString(sc);
+
+        FileHandler patientFile = new FileHandler("icuPatients.txt");
+        FileHandler nurseFile = new FileHandler("icuNurses.txt");
+
+        nurse.assignNurseToPatient(patientID, nurseID, patientFile, nurseFile);
+    }
     public static int readPositiveInt(Scanner sc) {
         while (true) {
             String input = sc.nextLine().trim();
