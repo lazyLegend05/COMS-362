@@ -34,6 +34,12 @@ public class Radiology {
 				String[] dateData = slot.split("-", -1);
 				LocalDateTime start = parseDateStrings(dateData[0], dateData[1]);
 				LocalDateTime end = parseDateStrings(dateData[2], dateData[3]);;
+				
+				if (end.isBefore(LocalDateTime.now())) {
+					String record = line.replace(slot, "").replace(";;", "").replace("[;", "[").replace(";]", "]");
+					fh.updateRecord(fields[0], record);
+				}
+				
 				LocalDateTime[] pair = {start, end};
 				times.add(pair);
 				
@@ -77,11 +83,15 @@ public class Radiology {
 			Machine machine = getMachine(apptFields[1]);
 			
 			LocalDateTime start = parseDateStrings(apptFields[2], apptFields[3]);
-			LocalDateTime end = parseDateStrings(apptFields[4], apptFields[5]);;
+			LocalDateTime end = parseDateStrings(apptFields[4], apptFields[5]);
 			
 			RadiologyAppt appt = new RadiologyAppt(orders, machine, start, end);
 			
 			bookedAppts.add(appt);
+			
+			if (LocalDateTime.now().isAfter(end)) {
+				executeAppt(appt, "The patient was absent for their appointment");
+			}
 			
 		}
 		
@@ -102,6 +112,17 @@ public class Radiology {
 		for (Machine machine: machines) {
 			if (machine.getId().equals(id)) {
 				return machine;
+			}
+		}
+		return null;
+	}
+	
+	public RadiologyAppt getAppointment(String patientName) {
+		
+		updateAppointments();
+		for (RadiologyAppt appt: bookedAppts) {
+			if (appt.getPatient().getName().equals(patientName)) {
+				return appt;
 			}
 		}
 		return null;
@@ -193,7 +214,29 @@ public class Radiology {
 			
 	}
 	
-	private LocalDateTime parseDateStrings(String day, String hour) {
+	public void executeAppt(RadiologyAppt appt, String result) {
+		
+		String patientName = appt.getPatient().getName();
+		String record = patientName + "| ";
+		
+		FileHandler fh = new FileHandler("machineOrders.txt");
+		record += "orders:" + fh.findRecord(patientName) + " ";
+		fh.removeRecord(patientName);
+		
+		fh = new FileHandler("radioImageAppointments.txt");
+		record += "appointment:" + fh.findRecord(patientName) + " ";
+		fh.removeRecord(patientName);
+		
+		record += "results:{" + result + "} ";
+		
+		fh = new FileHandler("radioImageRecords.txt");
+		fh.writeRecord(record);
+		
+		System.out.println(record);
+		
+	}
+	
+	protected static LocalDateTime parseDateStrings(String day, String hour) {
 		String[] fields = day.split("/", -1);
 		return LocalDateTime.of(Integer.parseInt(fields[2]), Integer.parseInt(fields[0]), Integer.parseInt(fields[1]), Integer.parseInt(hour), 0);
 	}

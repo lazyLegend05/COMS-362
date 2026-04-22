@@ -5,9 +5,9 @@ public class Doctor extends Staff {
 		super(name, staffID, "doctor");
 	}
 
-	public MachineOrders makeMachineOrders(Patient patient, String type) {
-		// TODO: write to a file instead of returning anything
-		return new MachineOrders(patient, this, type);
+	public void makeMachineOrders(Patient patient, String type) {
+		FileHandler fh = new FileHandler("machineOrders.txt");
+		fh.writeRecord(patient.getName() + "," + this.getStaffID() + "," + type);
 	}
 	
 }

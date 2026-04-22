@@ -170,106 +170,146 @@ public class Main {
         	Doctor doctor = radioImageDept.getDoctor(fields[1]);
         	MachineOrders orders = new MachineOrders(patient, doctor, fields[2]);
         	
-        	System.out.println(patient.getName() + " currently needs a(n) " + orders.getType()
-	                + ". Would you like to schedule an appointment with the Radiology and Imaging department? (y/n)");
-	        String ans = scnr.nextLine().trim().toLowerCase();
-	
-	        while (!(ans.equals("y") || ans.equals("n"))) {
-	            System.out.print("Please enter y or n: ");
-	            ans = scnr.nextLine().trim().toLowerCase();
-	        }
-	
-	        while (ans.equals("y")) {
-	            System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
-	            String date = scnr.nextLine();
-	            int year = -1;
-	            int month = -1;
-	            int day = -1;
-	            boolean valid = false;
-	            while (!valid) {
-	            	try {
-	            		
-		            	if (date.length() != 10 || date.charAt(2) != '/' || date.charAt(5) != '/') {
-		            		throw new NumberFormatException();
-		            	}
-		            	
-	            		month = Integer.parseInt(date.substring(0, 2));
-	            		day = Integer.parseInt(date.substring(3, 5));
-	            		year = Integer.parseInt(date.substring(6));
-	            		
-	            		valid = true;
-	            		
-	            	} catch (NumberFormatException e) {
-	            		System.out.println("The date you entered was not valid. Please try again.");
-	            	}
-	            }
-	            
-	            ArrayList<int[]> apptSlots = radioImageDept.getAppointmentSlots(year, month, day, 2, orders.getType());
-	            
-	            System.out.println("Please choose the time you would like your appointment to be (1-" + apptSlots.size() + ")");
-	            System.out.println("Here is a list of available times on the day you've selected:");
-	            System.out.println();
-	            
-	            if (apptSlots.size() > 0) {
-	            	
-	            	for (int i = 1; i <= apptSlots.size(); i++) {
-	            	
-		            	int[] slot = apptSlots.get(i-1);
-		            	
-		            	System.out.print(i + ".");
-		            	for (int k = 0; k < 2; k++) {
-		            		int hour = slot[k];
-		            		boolean am = ((hour%24)/12 <= 0);
-		            		System.out.print(" " + (hour%12 == 0 ? 12 : hour%12) + ":00" + (am ? "am":"pm") + " ");
-		            		if (k == 0) System.out.print("-");
-		            	}
-		            	
-		            	System.out.println();
-		            	
-		            }
-	            	
-	            	System.out.println();
-		            
-		            int choice = readPositiveInt(scnr);
-		
-		            LocalDateTime start = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[0], 0);
-		            LocalDateTime end;
-		            
-		            if (apptSlots.get(choice - 1)[1] >= 24) {
-		            	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1]-24, 0).plusDays(1);
-		            } else {
-		            	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1], 0);
-		            }
-		
-		            boolean booked = radioImageDept.scheduleAppt(patient, orders, start, end);
-		
-		            if (booked) {
-		                System.out.println("Great! Your appointment has been booked successfully.");
-		                break;
-		            } else {
-		                System.out.println("Sorry, there are no available machines at that time. Would you like to try to book another time? (y/n)");
-		                ans = scnr.nextLine().trim().toLowerCase();
-		                while (!(ans.equals("y") || ans.equals("n"))) {
-		                    System.out.print("Please enter y or n: ");
-		                    ans = scnr.nextLine().trim().toLowerCase();
-		                }
-		            }
-		            
-	            } else {
-	            	
-	            	System.out.println("Sorry, there are no available machines on that day. Would you like to try to book another time? (y/n)");
-	                ans = scnr.nextLine().trim().toLowerCase();
-	                while (!(ans.equals("y") || ans.equals("n"))) {
-	                    System.out.print("Please enter y or n: ");
-	                    ans = scnr.nextLine().trim().toLowerCase();
-	                }
-	            	
-	            }
-	        }
+        	fh = new FileHandler("radioImageAppointments.txt");
+        	record = fh.findRecord(patientName);
+        	
+        	if (record == null) {
+        	
+	        	radioAppointmentScheduler(scnr, radioImageDept, patient, orders);
+		        
+        	} else {
+        		
+        		RadiologyAppt appt = radioImageDept.getAppointment(patientName);
+        		
+        		radioAppointmentExecuter(scnr, radioImageDept, appt, orders);
+        		
+        	}
         } else {
         	System.out.println("You don't currently have any doctor's orders to make an appointment with the Radiology and Imaging department. \nIf you think this is a mistake, please contact your doctor.");
         }
 	        
+    }
+    
+    private static void radioAppointmentScheduler(Scanner scnr, Radiology radioImageDept, Patient patient, MachineOrders orders) {
+    	System.out.println(patient.getName() + " currently needs a(n) " + orders.getType()
+		        + ". Would you like to schedule an appointment with the Radiology and Imaging department? (y/n)");
+		String ans = scnr.nextLine().trim().toLowerCase();
+		
+		while (!(ans.equals("y") || ans.equals("n"))) {
+		    System.out.print("Please enter y or n: ");
+		    ans = scnr.nextLine().trim().toLowerCase();
+		}
+		
+		while (ans.equals("y")) {
+			System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
+			String date = scnr.nextLine();
+			int year = -1;
+			int month = -1;
+			int day = -1;
+			boolean valid = false;
+			while (!valid) {
+		    	try {
+		    		
+		        	if (date.length() != 10 || date.charAt(2) != '/' || date.charAt(5) != '/') {
+		        		throw new NumberFormatException();
+		        	}
+		        	
+		    		month = Integer.parseInt(date.substring(0, 2));
+		    		day = Integer.parseInt(date.substring(3, 5));
+		    		year = Integer.parseInt(date.substring(6));
+		    		
+		    		if (Radiology.parseDateStrings(date, "23").isBefore(LocalDateTime.now())) {
+		    			System.out.println("You cannot schedule an appointment on a day that has already passed. Please try again.");
+		    		} else {
+		    			valid = true;
+		    			break;
+		    		}
+		    		
+		    	} catch (NumberFormatException e) {
+		    		System.out.println("The date you entered was not valid. Please try again.");
+		    	}
+		    	
+		    	System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
+				date = scnr.nextLine();
+		    	
+		    }
+		    
+		    ArrayList<int[]> apptSlots = radioImageDept.getAppointmentSlots(year, month, day, 2, orders.getType());
+		    
+		    System.out.println("Please choose the time you would like your appointment to be (1-" + apptSlots.size() + ")");
+		    System.out.println("Here is a list of available times on the day you've selected:");
+		    System.out.println();
+		    
+		    if (apptSlots.size() > 0) {
+		    	
+		    	for (int i = 1; i <= apptSlots.size(); i++) {
+		    	
+		        	int[] slot = apptSlots.get(i-1);
+		        	
+		        	System.out.print(i + ".");
+		        	for (int k = 0; k < 2; k++) {
+		        		int hour = slot[k];
+		        		boolean am = ((hour%24)/12 <= 0);
+		        		System.out.print(" " + (hour%12 == 0 ? 12 : hour%12) + ":00" + (am ? "am":"pm") + " ");
+		        		if (k == 0) System.out.print("-");
+		        	}
+		        	
+		        	System.out.println();
+		        	
+		        }
+		    	
+		    	System.out.println();
+		        
+		        int choice = readPositiveInt(scnr);
+		
+		        LocalDateTime start = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[0], 0);
+		        LocalDateTime end;
+		        
+		        if (apptSlots.get(choice - 1)[1] >= 24) {
+		        	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1]-24, 0).plusDays(1);
+		        } else {
+		        	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1], 0);
+		        }
+		
+		        boolean booked = radioImageDept.scheduleAppt(patient, orders, start, end);
+		
+		        if (booked) {
+		            System.out.println("Great! Your appointment has been booked successfully.");
+		            break;
+		        } else {
+		            System.out.println("Sorry, there are no available machines at that time. Would you like to try to book another time? (y/n)");
+		            ans = scnr.nextLine().trim().toLowerCase();
+		            while (!(ans.equals("y") || ans.equals("n"))) {
+		                System.out.print("Please enter y or n: ");
+		                ans = scnr.nextLine().trim().toLowerCase();
+		            }
+		        }
+		        
+		    } else {
+		    	
+		    	System.out.println("Sorry, there are no available machines on that day. Would you like to try to book another time? (y/n)");
+		        ans = scnr.nextLine().trim().toLowerCase();
+		        while (!(ans.equals("y") || ans.equals("n"))) {
+		            System.out.print("Please enter y or n: ");
+		            ans = scnr.nextLine().trim().toLowerCase();
+		        }
+		    	
+		    }
+		}
+    }
+    
+    private static void radioAppointmentExecuter(Scanner scnr, Radiology radioImageDept, RadiologyAppt appt, MachineOrders orders) {
+    	
+    	System.out.println("You currently have a(n)" + orders.getType() + " appointment scheduled. Would you like to handle that now? (y/n)");
+		String ans = scnr.nextLine().trim().toLowerCase();
+		
+        while (!(ans.equals("y") || ans.equals("n"))) {
+            System.out.print("Please enter y or n: ");
+            ans = scnr.nextLine().trim().toLowerCase();
+        }
+        
+        radioImageDept.executeAppt(appt, "This patient is not currently dying"); // the results would be entered by the examiner at the actual appointment, beyond the scope of this project
+    	
     }
 
     public static void runICU(Scanner sc) {
