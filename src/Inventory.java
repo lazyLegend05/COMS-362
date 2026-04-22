@@ -9,8 +9,8 @@ public class Inventory {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                String name = parts[0].trim();
-                int qty = Integer.parseInt(parts[1].trim());
+                String name = parts[0];
+                int qty = Integer.parseInt(parts[1]);
 
                 if (name.equalsIgnoreCase(medicineName)) {
                     return qty >= requiredQty;
@@ -18,8 +18,6 @@ public class Inventory {
             }
         } catch (IOException e) {
             System.out.println("Error reading inventory file.");
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid number format in inventory file.");
         }
         return false;
     }
@@ -31,24 +29,17 @@ public class Inventory {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                String medName = parts[0].trim();
-                int stock = Integer.parseInt(parts[1].trim());
+                String name = parts[0];
+                int qty = Integer.parseInt(parts[1]);
 
-                if (medName.equalsIgnoreCase(medicineName)) {
-                    stock -= quantityUsed;
-                    if (stock < 0) {
-                        stock = 0;
-                    }
-                    line = medName + "," + stock;
+                if (name.equalsIgnoreCase(medicineName)) {
+                    qty -= quantityUsed;
+                    line = name + "," + qty;
                 }
-
                 updatedLines.add(line);
             }
         } catch (IOException e) {
             System.out.println("Error updating inventory.");
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid number format in inventory file.");
             return;
         }
 

@@ -5,7 +5,7 @@ public class MachineOrders {
 	private Patient patient;
 	private String type;
 
-	public MachineOrders(Doctor doctor, Patient patient, String type) {
+	public MachineOrders(Patient patient, Doctor doctor, String type) {
 		this.doctor = doctor;
 		this.patient = patient;
 		this.type = type;
