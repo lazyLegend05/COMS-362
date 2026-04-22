@@ -227,6 +227,8 @@ public class Radiology {
 		record += "appointment:" + fh.findRecord(patientName) + " ";
 		fh.removeRecord(patientName);
 		
+		updateArrays();
+		
 		record += "results:{" + result + "} ";
 		
 		fh = new FileHandler("radioImageRecords.txt");
