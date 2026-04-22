@@ -6,8 +6,8 @@ public class Doctor extends Staff {
 	}
 
 	public MachineOrders makeMachineOrders(Patient patient, String type) {
-		return new MachineOrders(this, patient, type);
+		// TODO: write to a file instead of returning anything
+		return new MachineOrders(patient, this, type);
 	}
-	
 	
 }

@@ -55,6 +55,22 @@ public class FileHandler {
             System.out.println("Error reading records.");
         }
     }
+    
+    protected ArrayList<String> returnRecords() {
+    	
+    	try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            ArrayList<String> records = new ArrayList<String>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                records.add(line);
+            }
+            return records;
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+        }
+        return null;
+    	
+    }
 
     public String findRecord(String id) {
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -69,15 +85,21 @@ public class FileHandler {
         }
         return null;
     }
+    
+    public void removeRecord(String id) {
+    	updateRecord(id, null);
+    }
 
-    public void updateRecord(String id, String updatedLine) {
+    public void updateRecord(String id, String updatedLine) { // enter a null string to remove the desired line
         List<String> lines = new ArrayList<>();
         boolean found = false;
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(id + ",")) {
-                    lines.add(updatedLine);
+                	if (updatedLine != null) {
+                		lines.add(updatedLine);
+                	}
                     found = true;
                 } else {
                     lines.add(line);
