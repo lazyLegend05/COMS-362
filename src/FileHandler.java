@@ -138,4 +138,13 @@ public class FileHandler {
     public String getFileName() {
         return fileName;
     }
+
+    public Patient findPatient(String patientID) {
+        String record = findRecord(patientID);
+        if (record == null) {
+            return null;
+        }
+        String[] parts = record.split(",");
+        return new Patient(parts[1], Integer.parseInt(parts[2]), parts[3]);
+    }
 }

@@ -22,7 +22,7 @@ public class Inventory {
         return false;
     }
 
-    public void updateStock(String medicineName, int quantityUsed) {
+    public boolean updateStock(String medicineName, int quantityUsed) {
         ArrayList<String> updatedLines = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -40,7 +40,7 @@ public class Inventory {
             }
         } catch (IOException e) {
             System.out.println("Error updating inventory.");
-            return;
+            return false;
         }
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
@@ -50,6 +50,49 @@ public class Inventory {
             }
         } catch (IOException e) {
             System.out.println("Error writing updated inventory.");
+            return false;
         }
+
+        return true;
+    }
+    public boolean restockMedicine(String medicineName, int quantityToAdd) {
+        ArrayList<String> updatedLines = new ArrayList<>();
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                String name = parts[0];
+                int qty = Integer.parseInt(parts[1]);
+
+                if (name.equalsIgnoreCase(medicineName)) {
+                    qty += quantityToAdd;
+                    line = name + "," + qty;
+                    found = true;
+                }
+                updatedLines.add(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading inventory.");
+            return false;
+        }
+
+        if (!found) {
+            System.out.println("Medicine not found in inventory.");
+            return false;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
+            for (String updatedLine : updatedLines) {
+                bw.write(updatedLine);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing updated inventory.");
+            return false;
+        }
+
+        return true;
     }
 }

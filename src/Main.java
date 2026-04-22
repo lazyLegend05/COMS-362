@@ -79,48 +79,102 @@ public class Main {
     }
 
     public static void runEmergency(Scanner sc) {
-        System.out.println("\n=== Emergency Care Department ===");
+        boolean running = true;
 
-        FileHandler fileHandler = new FileHandler("emergency_records.txt");
+        while (running) {
+            System.out.println("\n=== Emergency Care Department ===");
+            System.out.println("1. Register New Patient");
+            System.out.println("2. Assign Bed to Patient");
+            System.out.println("3. Exit Emergency Department");
+            System.out.print("Choose option: ");
+            int emergencyChoice = readPositiveInt(sc);
 
-        System.out.print("Is the patient unconscious? (yes/no): ");
-        String unconsciousInput = sc.nextLine().trim().toLowerCase();
+            switch (emergencyChoice) {
+                case 1:
+                    FileHandler fileHandler = new FileHandler("emergency_records.txt");
 
-        String infoSource;
-        if (unconsciousInput.equals("yes")) {
-            infoSource = "Companion";
-            System.out.println("Companion will provide patient information.");
-        } else {
-            infoSource = "Patient";
-        }
+                    System.out.print("Is the patient unconscious? (yes/no): ");
+                    String unconsciousInput = readYesNo(sc);
 
-        System.out.print("Enter patient name: ");
-        String name = readNonEmptyString(sc);
+                    String infoSource;
+                    if (unconsciousInput.equals("yes")) {
+                        infoSource = "Companion";
+                        System.out.println("Companion will provide patient information.");
+                    } else {
+                        infoSource = "Patient";
+                    }
 
-        int age;
-        while (true) {
-            System.out.print("Enter patient age: ");
-            age = readPositiveInt(sc);
-            if (age > 0) {
-                break;
+                    System.out.print("Enter patient name: ");
+                    String name = readAlphaOnly(sc);
+
+                    System.out.print("Enter patient age: ");
+                    int age = readBoundedAge(sc);
+
+                    System.out.print("Enter contact number: ");
+                    String contactNum = readPhoneNumber(sc);
+
+                    System.out.print("Enter chief complaint (reason for visit): ");
+                    String complaint = readNonEmptyString(sc);
+
+                    Patient patient = new Patient(name, age, contactNum);
+                    EmergencyRecord record = new EmergencyRecord(complaint, infoSource);
+
+                    fileHandler.writeRecord(record.toFileString(patient));
+
+                    System.out.println("Registration confirmed.");
+                    System.out.println("Generated Patient ID: " + record.getPatientID());
+                    break;
+
+                case 2:
+                    FileHandler emergencyFile = new FileHandler("emergency_records.txt");
+                    BedManager bedManager = new BedManager();
+
+                    System.out.print("Enter patient ID: ");
+                    String patientID = readEmergencyPatientID(sc);
+
+                    Patient foundPatient = emergencyFile.findPatient(patientID);
+                    if (foundPatient == null) {
+                        System.out.println("Patient not found.");
+                        break;
+                    }
+
+                    System.out.println("Patient found: " + foundPatient.getName()
+                            + ", Age: " + foundPatient.getAge());
+
+                    java.util.List<Bed> availableBeds = bedManager.getAvailableBeds();
+                    if (availableBeds.isEmpty()) {
+                        System.out.println("No beds available. Placing patient on waiting list.");
+                        break;
+                    }
+
+                    System.out.println("Available beds:");
+                    for (Bed b : availableBeds) {
+                        System.out.println("  Bed ID: " + b.getBedID()
+                                + " | Ward: " + b.getWard());
+                    }
+
+                    System.out.print("Enter bed ID to assign: ");
+                    String bedID = readBedID(sc);
+
+                    boolean success = bedManager.assignBed(bedID, patientID);
+                    if (success) {
+                        System.out.println("Bed " + bedID + " successfully assigned to "
+                                + foundPatient.getName());
+                    } else {
+                        System.out.println("Could not assign bed. Please check the bed ID.");
+                    }
+                    break;
+
+                case 3:
+                    running = false;
+                    System.out.println("Exiting Emergency Department.");
+                    break;
+
+                default:
+                    System.out.println("Invalid option. Please choose 1, 2, or 3.");
             }
         }
-
-        System.out.print("Enter contact number: ");
-        String contactNum = readNonEmptyString(sc);
-
-        System.out.print("Enter chief complaint (reason for visit): ");
-        String complaint = readNonEmptyString(sc);
-
-        Patient patient = new Patient(name, age, contactNum);
-        EmergencyRecord record = new EmergencyRecord(complaint, infoSource);
-
-        fileHandler.writeRecord(record.toFileString(patient));
-
-        System.out.println("Registration confirmed.");
-        System.out.println("Generated Patient ID: " + record.getPatientID());
     }
-
     public static void runLab(Scanner sc) {
         System.out.println("\n=== Laboratory Department ===");
 
@@ -458,6 +512,45 @@ public class Main {
                 return input;
             }
             System.out.print("Input cannot be empty. Please try again: ");
+        }
+    }
+    public static String readAlphaOnly(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim();
+            if (input.matches("[a-zA-Z ]+")) {
+                return input;
+            }
+            System.out.print("Invalid input. Name cannot contain numbers or symbols. Try again: ");
+        }
+    }
+
+    public static String readEmergencyPatientID(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim();
+            if (input.startsWith("ER") && input.length() > 2) {
+                return input;
+            }
+            System.out.print("Invalid patient ID. Must start with 'ER' (e.g. ER1234567890): ");
+        }
+    }
+
+    public static String readBedID(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim().toUpperCase();
+            if (input.matches("B\\d+")) {
+                return input;
+            }
+            System.out.print("Invalid bed ID. Must be B followed by digits (e.g. B001): ");
+        }
+    }
+
+    public static String readYesNo(Scanner sc) {
+        while (true) {
+            String input = sc.nextLine().trim().toLowerCase();
+            if (input.equals("yes") || input.equals("no")) {
+                return input;
+            }
+            System.out.print("Please enter yes or no: ");
         }
     }
 }
