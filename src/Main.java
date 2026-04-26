@@ -12,6 +12,7 @@ public class Main {
         System.out.println("3. Laboratory Department");
         System.out.println("4. Radiology / Imaging Department");
         System.out.println("5. ICU Department");
+		System.out.println("6. HR Department");
         System.out.print("Choose department: ");
 
         int choice = readPositiveInt(sc);
@@ -32,6 +33,9 @@ public class Main {
             case 5:
                 runICU(sc);
                 break;
+			case 6:
+				runHR(sc);
+				break;
             default:
                 System.out.println("Invalid choice.");
         }
@@ -205,6 +209,35 @@ public class Main {
 
         System.out.println("Lab test request complete");
     }
+	
+	public static void runHR(Scanner sc) {
+    	HR system = new HR("Admin", "HR001");
+    	
+    	while(true) {
+    		
+    		System.out.println("\n=== HR DEPARTMENT ===");
+    		System.out.println("1. Hire Employee");
+    		System.out.println("2. Fire Employee");
+    		System.out.println("3. Exit HR");
+    		System.out.print("Choose option: ");
+
+    		int choice = Integer.parseInt(sc.nextLine());
+
+    		switch (choice) {
+    			case 1:
+    				system.hire();
+    				break;
+    			case 2:
+    				system.fire();
+    				break;
+    			case 3:
+    				System.out.println("Exiting HR Department...");
+    				return;
+    			default:
+    				System.out.println("Invalid choice.");
+    		}	
+    	}
+   }
 
     public static void runRadiology(Scanner scnr) {
         System.out.println("\n=== Radiology Department ===");
