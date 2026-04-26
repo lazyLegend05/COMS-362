@@ -1,7 +1,7 @@
 
 public class LabStaff extends Staff{
 	public LabStaff(String name, String staffID, String position) {
-		super(name, staffID, position);
+		super(name, staffID, "lab");
 	}
 	
 	public void registerLabTest(Patient patient, String test, FileHandler fh) {
