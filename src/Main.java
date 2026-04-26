@@ -6,6 +6,10 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
+		HR hr = new HR("Admin", "HR001");
+
+		hr.loadFromFile();
+
         System.out.println("=== Hospital Management System ===");
         System.out.println("1. Pharmacy Department");
         System.out.println("2. Emergency Care Department");
@@ -25,7 +29,7 @@ public class Main {
                 runEmergency(sc);
                 break;
             case 3:
-                runLab(sc);
+                runLab(sc, hr);
                 break;
             case 4:
                 runRadiology(sc);
@@ -34,7 +38,7 @@ public class Main {
                 runICU(sc);
                 break;
 			case 6:
-				runHR(sc);
+				runHR(sc, hr);
 				break;
             default:
                 System.out.println("Invalid choice.");
@@ -182,6 +186,13 @@ public class Main {
     public static void runLab(Scanner sc) {
         System.out.println("\n=== Laboratory Department ===");
 
+		LabStaff labStaff = hr.getLabStaff();
+
+		if(labStaff == null){
+			System.out.println("No labStaff available. Lab staff need to be hired.");
+			return;
+		}
+		
         FileHandler fileHandler = new FileHandler("lab.txt");
 
         System.out.print("Enter patient name: ");
@@ -203,16 +214,13 @@ public class Main {
         String test = readNonEmptyString(sc);
 
         Patient patient = new Patient(name, age, contact);
-        LabStaff labStaff = new LabStaff("Billy", "LS001", "Lab Tech");
-
+		
         labStaff.registerLabTest(patient, test, fileHandler);
 
         System.out.println("Lab test request complete");
     }
 	
-	public static void runHR(Scanner sc) {
-    	HR system = new HR("Admin", "HR001");
-    	
+	public static void runHR(Scanner sc, HR system) {
     	while(true) {
     		
     		System.out.println("\n=== HR DEPARTMENT ===");
