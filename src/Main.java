@@ -183,7 +183,7 @@ public class Main {
             }
         }
     }
-    public static void runLab(Scanner sc) {
+    public static void runLab(Scanner sc, HR hr) {
         System.out.println("\n=== Laboratory Department ===");
 
 		LabStaff labStaff = hr.getLabStaff();
