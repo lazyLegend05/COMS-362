@@ -20,6 +20,54 @@ public class HR {
 		this.name = name;
 		this.staffID = staffID;
 	}
+
+	private Staff createStaff(String name, String id, String position) {
+		
+		if (position == null) {
+			return new Staff(name, id, "unknown");
+		}
+		
+		switch(position.toLowerCase()) {
+			case "lab":
+			case "lab tech":
+				return new LabStaff(name, id);
+		
+			default:
+				return new Staff(name, id, position);
+		}
+	}
+	
+	public void loadFromFile() {
+		try {
+			File file = new File("StaffRecords.txt");
+			
+			if (!file.exists()) {
+				return;
+			}
+
+			Scanner reader = new Scanner(file);
+
+			while (reader.hasNextLine()) {
+				String[] parts = reader.nextLine().split(",");
+
+				if (parts.length < 3) {
+					continue;
+				}
+
+				String id = parts[0];
+				String name = parts[1];
+				String position = parts[2];
+
+				Staff staff = createStaff(name, id, position);
+				employees.add(staff);
+			}
+
+			reader.close();
+
+		} catch (IOException e) {
+			System.out.println("Error loading staff.");
+		}
+	}
 	
 	/**
 	 * Hires a new employee by entering information and saving it to a .txt file
@@ -61,7 +109,7 @@ public class HR {
 		String newHireID = "S" + System.currentTimeMillis();
 		
 		// Create staff object
-		Staff newStaff = new Staff(employeeName, newHireID, position);
+		Staff newStaff = createStaff(employeeName, newHireID, position);
 		
 		employees.add(newStaff);
 		
@@ -143,5 +191,15 @@ public class HR {
 		} catch (IOException e) {
 			System.out.println("Error updating the file.");
 		}
+	}
+
+	public LabStaff getLabStaff() {
+		for (Staff s : employees) {
+			if (s instanceof LabStaff) {
+				return (LabStaff) s;
+			}
+		}
+		
+		return null;
 	}
 }
