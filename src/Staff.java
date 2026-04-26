@@ -47,4 +47,12 @@ public class Staff {
 		return position;
 	}
 
+	/**
+	 * Converts the staff into a format for the .txt file
+	 * 
+	 * @return
+	 */
+	public String toFileString() {
+		return staffID + "," + name + "," + position;
+	}
 }
