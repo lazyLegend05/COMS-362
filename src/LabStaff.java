@@ -1,6 +1,6 @@
 
 public class LabStaff extends Staff{
-	public LabStaff(String name, String staffID, String position) {
+	public LabStaff(String name, String staffID) {
 		super(name, staffID, "lab");
 	}
 	
