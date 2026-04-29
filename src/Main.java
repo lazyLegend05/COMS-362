@@ -51,6 +51,7 @@ public class Main {
         System.out.println("\n=== Pharmacy Department ===");
         System.out.println("1. Dispense Medication");
         System.out.println("2. Restock Medicine");
+        System.out.println("3. Add New Medicine");
         System.out.print("Choose pharmacy operation: ");
 
         int pharmacyChoice = readPositiveInt(sc);
@@ -79,6 +80,16 @@ public class Main {
                 int restockQty = readPositiveInt(sc);
 
                 pharmacist.restockMedicine(restockMedicine, restockQty);
+                break;
+
+            case 3:
+                System.out.print("Enter new medicine name: ");
+                String newMedicineName = readNonEmptyString(sc);
+
+                System.out.print("Enter starting quantity: ");
+                int newMedicineQty = readPositiveInt(sc);
+
+                pharmacist.addNewMedicine(newMedicineName, newMedicineQty);
                 break;
 
             default:

@@ -3,8 +3,16 @@ public class Pharmacist {
     private String staffID;
 
     public Pharmacist(String name, String staffID) {
-        this.name = name;
-        this.staffID = staffID;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Pharmacist name cannot be empty.");
+        }
+
+        if (staffID == null || staffID.trim().isEmpty()) {
+            throw new IllegalArgumentException("Staff ID cannot be empty.");
+        }
+
+        this.name = name.trim();
+        this.staffID = staffID.trim();
     }
 
     public void dispenseMedication(Patient p, String medicineName, int quantity) {
@@ -25,12 +33,15 @@ public class Pharmacist {
             return;
         }
 
+        medicineName = medicineName.trim();
+
         if (!inventory.checkAvailability(medicineName, quantity)) {
             System.out.println("Medicine unavailable or insufficient stock.");
             return;
         }
 
         boolean stockUpdated = inventory.updateStock(medicineName, quantity);
+
         if (!stockUpdated) {
             System.out.println("Failed to update inventory.");
             return;
@@ -57,7 +68,10 @@ public class Pharmacist {
             return;
         }
 
+        medicineName = medicineName.trim();
+
         boolean restocked = inventory.restockMedicine(medicineName, quantity);
+
         if (!restocked) {
             System.out.println("Failed to restock medicine.");
             return;
@@ -69,5 +83,27 @@ public class Pharmacist {
 
         System.out.println("Medicine restocked successfully!");
         System.out.println("Restock Record ID: " + record.getRecordID());
+    }
+    public void addNewMedicine(String medicineName, int quantity) {
+        Inventory inventory = new Inventory();
+
+        if (medicineName == null || medicineName.trim().isEmpty()) {
+            System.out.println("Invalid medicine name.");
+            return;
+        }
+
+        if (quantity <= 0) {
+            System.out.println("Invalid quantity entered.");
+            return;
+        }
+
+        boolean added = inventory.addNewMedicine(medicineName, quantity);
+
+        if (!added) {
+            System.out.println("Failed to add new medicine.");
+            return;
+        }
+
+        System.out.println("New medicine added successfully!");
     }
 }
