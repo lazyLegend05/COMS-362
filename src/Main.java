@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
+        
         Scanner sc = new Scanner(System.in);
 
 		HR hr = new HR("Admin", "HR001");
@@ -46,7 +47,6 @@ public class Main {
 
         sc.close();
     }
-
     public static void runPharmacy(Scanner sc) {
         System.out.println("\n=== Pharmacy Department ===");
         System.out.println("1. Dispense Medication");
@@ -421,11 +421,18 @@ public class Main {
     public static void runICU(Scanner sc) {
         System.out.println("\n=== ICU Department ===");
 
+        while (true) {
+
         System.out.print("Enter nurse username: ");
         String username = readICUString(sc);
 
         System.out.print("Enter staffID: ");
-        String staffID = readICUString(sc);
+        String staffID = readNurseFileID(sc);
+
+        if (!isValidICUNurseLogin(username, staffID)) {
+            System.out.println("Invalid nurse credentials. Please verify your username and staff ID.");
+            continue;
+        }
 
         ICUNurse nurse = new ICUNurse(username, staffID);
 
@@ -441,6 +448,32 @@ public class Main {
         } else {
             System.out.println("Invalid choice.");
         }
+
+        break;
+        }
+    }
+
+    private static boolean isValidICUNurseLogin(String username, String staffID) {
+        FileHandler nurseFile = new FileHandler("icuNurses.txt");
+        String nurseRecord = nurseFile.findRecord(staffID.toUpperCase());
+
+        if (nurseRecord == null) {
+            return false;
+        }
+
+        String[] fields = nurseRecord.split(",", -1);
+        if (fields.length < 2) {
+            return false;
+        }
+
+        String storedName = fields[1].trim();
+        String enteredName = username.trim();
+        if (storedName.equalsIgnoreCase(enteredName)) {
+            return true;
+        }
+
+        String[] storedParts = storedName.split("\\s+");
+        return storedParts.length > 0 && storedParts[0].equalsIgnoreCase(enteredName);
     }
 
     public static void admitICUPatient(Scanner sc, ICUNurse nurse) {
@@ -533,7 +566,7 @@ public class Main {
 
     public static String readNurseFileID(Scanner sc) {
         while (true) {
-            String input = sc.nextLine().trim();
+            String input = sc.nextLine().trim().toUpperCase();
             if (input.matches("N\\d+")) {
                 return input;
             }
