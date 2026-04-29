@@ -421,6 +421,8 @@ public class Main {
     public static void runICU(Scanner sc) {
         System.out.println("\n=== ICU Department ===");
 
+        ICUCommandInvoker invoker = new ICUCommandInvoker();
+
         while (true) {
 
         System.out.print("Enter nurse username: ");
@@ -438,13 +440,18 @@ public class Main {
 
         System.out.println("1. Admit patient");
         System.out.println("2. Assign nurse to patient");
+        System.out.println("3. Undo last action");
         System.out.print("Choose action: ");
         int action = readPositiveInt(sc);
 
         if (action == 1) {
-            admitICUPatient(sc, nurse);
+            ICUCommand cmd = buildAdmitPatientCommand(sc, nurse);
+            if (cmd != null) invoker.execute(cmd);
         } else if (action == 2) {
-            assignICUNurse(sc, nurse);
+            ICUCommand cmd = buildAssignNurseCommand(sc, nurse);
+            if (cmd != null) invoker.execute(cmd);
+        } else if (action == 3) {
+            invoker.undoLast();
         } else {
             System.out.println("Invalid choice.");
         }
@@ -476,7 +483,7 @@ public class Main {
         return storedParts.length > 0 && storedParts[0].equalsIgnoreCase(enteredName);
     }
 
-    public static void admitICUPatient(Scanner sc, ICUNurse nurse) {
+    public static ICUCommand buildAdmitPatientCommand(Scanner sc, ICUNurse nurse) {
         System.out.println("\n--- Current ICU Patients ---");
         new FileHandler("icuPatients.txt").readRecords();
         System.out.println("----------------------------\n");
@@ -505,10 +512,10 @@ public class Main {
         Patient patient = new Patient(name, age, phone);
         FileHandler fh = new FileHandler("icuPatients.txt");
 
-        nurse.admitPatient(patient, record, fh);
+        return new AdmitPatientCommand(nurse, patient, record, fh);
     }
 
-    public static void assignICUNurse(Scanner sc, ICUNurse nurse) {
+    public static ICUCommand buildAssignNurseCommand(Scanner sc, ICUNurse nurse) {
         System.out.println("\n--- Current ICU Patients ---");
         new FileHandler("icuPatients.txt").readRecords();
         System.out.println("----------------------------");
@@ -526,7 +533,7 @@ public class Main {
         FileHandler patientFile = new FileHandler("icuPatients.txt");
         FileHandler nurseFile = new FileHandler("icuNurses.txt");
 
-        nurse.assignNurseToPatient(patientID, nurseID, patientFile, nurseFile);
+        return new AssignNurseCommand(nurse, patientID, nurseID, patientFile, nurseFile);
     }
 
     public static String readICUString(Scanner sc) {

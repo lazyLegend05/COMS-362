@@ -26,8 +26,13 @@ public class ICURecord {
         this.assignedNurseID = nurseID;
     }
 
-    public String getPatientID() { return patientID; }
-    public String getAssignedNurseID() { return assignedNurseID; }
+    public String getPatientID() { 
+        return patientID; 
+    }
+
+    public String getAssignedNurseID() { 
+        return assignedNurseID;
+     }
 
     public String toFileString(Patient p) {
         return patientID + "," + p.getName() + "," + p.getAge() + ","
