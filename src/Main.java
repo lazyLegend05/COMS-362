@@ -49,16 +49,20 @@ public class Main {
     }
     public static void runPharmacy(Scanner sc) {
         System.out.println("\n=== Pharmacy Department ===");
-        System.out.println("1. Dispense Medication");
-        System.out.println("2. Restock Medicine");
-        System.out.println("3. Add New Medicine");
-        System.out.print("Choose pharmacy operation: ");
-
-        int pharmacyChoice = readPositiveInt(sc);
         Pharmacist pharmacist = new Pharmacist("Aadi", "P001");
+        CommandInvoker invoker = new CommandInvoker();
 
-        switch (pharmacyChoice) {
-            case 1:
+        while (true) {
+            System.out.println("1. Dispense Medication");
+            System.out.println("2. Restock Medicine");
+            System.out.println("3. Add New Medicine");
+            System.out.println("4. Undo last action");
+            System.out.println("5. Exit Pharmacy");
+            System.out.print("Choose pharmacy operation: ");
+
+            int pharmacyChoice = readPositiveInt(sc);
+
+            if (pharmacyChoice == 1) {
                 System.out.print("Enter patient name: ");
                 String patientName = readNonEmptyString(sc);
 
@@ -68,129 +72,127 @@ public class Main {
                 System.out.print("Enter quantity prescribed: ");
                 int quantity = readPositiveInt(sc);
 
-                Patient patient = new Patient(patientName);
-                pharmacist.dispenseMedication(patient, medicineName, quantity);
-                break;
+                Command cmd = new DispenseMedicationCommand(pharmacist, new Patient(patientName), medicineName, quantity);
+                invoker.execute(cmd);
 
-            case 2:
+            } else if (pharmacyChoice == 2) {
                 System.out.print("Enter medicine name to restock: ");
                 String restockMedicine = readNonEmptyString(sc);
 
                 System.out.print("Enter quantity to add: ");
                 int restockQty = readPositiveInt(sc);
 
-                pharmacist.restockMedicine(restockMedicine, restockQty);
-                break;
+                Command cmd = new RestockMedicineCommand(pharmacist, restockMedicine, restockQty);
+                invoker.execute(cmd);
 
-            case 3:
+            } else if (pharmacyChoice == 3) {
                 System.out.print("Enter new medicine name: ");
                 String newMedicineName = readNonEmptyString(sc);
 
                 System.out.print("Enter starting quantity: ");
                 int newMedicineQty = readPositiveInt(sc);
 
-                pharmacist.addNewMedicine(newMedicineName, newMedicineQty);
-                break;
+                Command cmd = new AddNewMedicineCommand(pharmacist, newMedicineName, newMedicineQty);
+                invoker.execute(cmd);
 
-            default:
+            } else if (pharmacyChoice == 4) {
+                invoker.undoLast();
+
+            } else if (pharmacyChoice == 5) {
+                System.out.println("Exiting Pharmacy Department.");
+                return;
+
+            } else {
                 System.out.println("Invalid pharmacy option.");
+            }
         }
     }
 
     public static void runEmergency(Scanner sc) {
-        boolean running = true;
+        CommandInvoker invoker = new CommandInvoker();
+        BedManager bedManager = new BedManager();
+        FileHandler fileHandler = new FileHandler("emergency_records.txt");
 
-        while (running) {
+        while (true) {
             System.out.println("\n=== Emergency Care Department ===");
             System.out.println("1. Register New Patient");
             System.out.println("2. Assign Bed to Patient");
-            System.out.println("3. Exit Emergency Department");
+            System.out.println("3. Undo last action");
+            System.out.println("4. Exit Emergency Department");
             System.out.print("Choose option: ");
             int emergencyChoice = readPositiveInt(sc);
 
-            switch (emergencyChoice) {
-                case 1:
-                    FileHandler fileHandler = new FileHandler("emergency_records.txt");
+            if (emergencyChoice == 1) {
+                System.out.print("Is the patient unconscious? (yes/no): ");
+                String unconsciousInput = readYesNo(sc);
 
-                    System.out.print("Is the patient unconscious? (yes/no): ");
-                    String unconsciousInput = readYesNo(sc);
+                String infoSource;
+                if (unconsciousInput.equals("yes")) {
+                    infoSource = "Companion";
+                    System.out.println("Companion will provide patient information.");
+                } else {
+                    infoSource = "Patient";
+                }
 
-                    String infoSource;
-                    if (unconsciousInput.equals("yes")) {
-                        infoSource = "Companion";
-                        System.out.println("Companion will provide patient information.");
-                    } else {
-                        infoSource = "Patient";
-                    }
+                System.out.print("Enter patient name: ");
+                String name = readAlphaOnly(sc);
 
-                    System.out.print("Enter patient name: ");
-                    String name = readAlphaOnly(sc);
+                System.out.print("Enter patient age: ");
+                int age = readBoundedAge(sc);
 
-                    System.out.print("Enter patient age: ");
-                    int age = readBoundedAge(sc);
+                System.out.print("Enter contact number: ");
+                String contactNum = readPhoneNumber(sc);
 
-                    System.out.print("Enter contact number: ");
-                    String contactNum = readPhoneNumber(sc);
+                System.out.print("Enter chief complaint (reason for visit): ");
+                String complaint = readNonEmptyString(sc);
 
-                    System.out.print("Enter chief complaint (reason for visit): ");
-                    String complaint = readNonEmptyString(sc);
+                Patient patient = new Patient(name, age, contactNum);
+                EmergencyRecord record = new EmergencyRecord(complaint, infoSource);
+                Command cmd = new RegisterEmergencyPatientCommand(patient, record, fileHandler);
+                invoker.execute(cmd);
 
-                    Patient patient = new Patient(name, age, contactNum);
-                    EmergencyRecord record = new EmergencyRecord(complaint, infoSource);
+            } else if (emergencyChoice == 2) {
+                FileHandler emergencyFile = new FileHandler("emergency_records.txt");
 
-                    fileHandler.writeRecord(record.toFileString(patient));
+                System.out.print("Enter patient ID: ");
+                String patientID = readEmergencyPatientID(sc);
 
-                    System.out.println("Registration confirmed.");
-                    System.out.println("Generated Patient ID: " + record.getPatientID());
-                    break;
+                Patient foundPatient = emergencyFile.findPatient(patientID);
+                if (foundPatient == null) {
+                    System.out.println("Patient not found.");
+                    continue;
+                }
 
-                case 2:
-                    FileHandler emergencyFile = new FileHandler("emergency_records.txt");
-                    BedManager bedManager = new BedManager();
+                System.out.println("Patient found: " + foundPatient.getName()
+                        + ", Age: " + foundPatient.getAge());
 
-                    System.out.print("Enter patient ID: ");
-                    String patientID = readEmergencyPatientID(sc);
+                java.util.List<Bed> availableBeds = bedManager.getAvailableBeds();
+                if (availableBeds.isEmpty()) {
+                    System.out.println("No beds available. Placing patient on waiting list.");
+                    continue;
+                }
 
-                    Patient foundPatient = emergencyFile.findPatient(patientID);
-                    if (foundPatient == null) {
-                        System.out.println("Patient not found.");
-                        break;
-                    }
+                System.out.println("Available beds:");
+                for (Bed b : availableBeds) {
+                    System.out.println("  Bed ID: " + b.getBedID()
+                            + " | Ward: " + b.getWard());
+                }
 
-                    System.out.println("Patient found: " + foundPatient.getName()
-                            + ", Age: " + foundPatient.getAge());
+                System.out.print("Enter bed ID to assign: ");
+                String bedID = readBedID(sc);
 
-                    java.util.List<Bed> availableBeds = bedManager.getAvailableBeds();
-                    if (availableBeds.isEmpty()) {
-                        System.out.println("No beds available. Placing patient on waiting list.");
-                        break;
-                    }
+                Command cmd = new AssignBedCommand(bedManager, bedID, patientID);
+                invoker.execute(cmd);
 
-                    System.out.println("Available beds:");
-                    for (Bed b : availableBeds) {
-                        System.out.println("  Bed ID: " + b.getBedID()
-                                + " | Ward: " + b.getWard());
-                    }
+            } else if (emergencyChoice == 3) {
+                invoker.undoLast();
 
-                    System.out.print("Enter bed ID to assign: ");
-                    String bedID = readBedID(sc);
+            } else if (emergencyChoice == 4) {
+                System.out.println("Exiting Emergency Department.");
+                return;
 
-                    boolean success = bedManager.assignBed(bedID, patientID);
-                    if (success) {
-                        System.out.println("Bed " + bedID + " successfully assigned to "
-                                + foundPatient.getName());
-                    } else {
-                        System.out.println("Could not assign bed. Please check the bed ID.");
-                    }
-                    break;
-
-                case 3:
-                    running = false;
-                    System.out.println("Exiting Emergency Department.");
-                    break;
-
-                default:
-                    System.out.println("Invalid option. Please choose 1, 2, or 3.");
+            } else {
+                System.out.println("Invalid option. Please choose 1, 2, 3, or 4.");
             }
         }
     }
@@ -199,67 +201,127 @@ public class Main {
 
 		LabStaff labStaff = hr.getLabStaff();
 
-		if(labStaff == null){
+		if (labStaff == null) {
 			System.out.println("No labStaff available. Lab staff need to be hired.");
 			return;
 		}
-		
+
+        CommandInvoker invoker = new CommandInvoker();
         FileHandler fileHandler = new FileHandler("lab.txt");
 
-        System.out.print("Enter patient name: ");
-        String name = readNonEmptyString(sc);
-
-        int age;
         while (true) {
-            System.out.print("Enter patient age: ");
-            age = readPositiveInt(sc);
-            if (age > 0) {
-                break;
+            System.out.println("1. Register Lab Test");
+            System.out.println("2. Undo last action");
+            System.out.println("3. Exit Laboratory");
+            System.out.print("Choose option: ");
+
+            int choice = readPositiveInt(sc);
+
+            if (choice == 1) {
+                System.out.print("Enter patient name: ");
+                String name = readNonEmptyString(sc);
+
+                int age;
+                while (true) {
+                    System.out.print("Enter patient age: ");
+                    age = readPositiveInt(sc);
+                    if (age > 0) break;
+                }
+
+                System.out.print("Enter Phone Number: ");
+                String contact = readNonEmptyString(sc);
+
+                System.out.print("Enter Test Type: ");
+                String test = readNonEmptyString(sc);
+
+                Patient patient = new Patient(name, age, contact);
+                Command cmd = new RegisterLabTestCommand(labStaff, patient, test, fileHandler);
+                invoker.execute(cmd);
+                System.out.println("Lab test request complete");
+
+            } else if (choice == 2) {
+                invoker.undoLast();
+
+            } else if (choice == 3) {
+                System.out.println("Exiting Laboratory Department.");
+                return;
+
+            } else {
+                System.out.println("Invalid option.");
             }
         }
-
-        System.out.print("Enter Phone Number: ");
-        String contact = readNonEmptyString(sc);
-
-        System.out.print("Enter Test Type: ");
-        String test = readNonEmptyString(sc);
-
-        Patient patient = new Patient(name, age, contact);
-		
-        labStaff.registerLabTest(patient, test, fileHandler);
-
-        System.out.println("Lab test request complete");
     }
 	
 	public static void runHR(Scanner sc, HR system) {
-    	while(true) {
-    		
+		CommandInvoker invoker = new CommandInvoker();
+    	while (true) {
+
     		System.out.println("\n=== HR DEPARTMENT ===");
     		System.out.println("1. Hire Employee");
     		System.out.println("2. Fire Employee");
-    		System.out.println("3. Exit HR");
+    		System.out.println("3. Undo last action");
+    		System.out.println("4. Exit HR");
     		System.out.print("Choose option: ");
 
-    		int choice = Integer.parseInt(sc.nextLine());
+    		int choice = readPositiveInt(sc);
 
-    		switch (choice) {
-    			case 1:
-    				system.hire();
-    				break;
-    			case 2:
-    				system.fire();
-    				break;
-    			case 3:
-    				System.out.println("Exiting HR Department...");
-    				return;
-    			default:
-    				System.out.println("Invalid choice.");
-    		}	
+    		if (choice == 1) {
+    			String employeeName;
+    			while (true) {
+    				System.out.print("Enter employee name: ");
+    				employeeName = sc.nextLine();
+    				boolean valid = !employeeName.trim().isEmpty();
+    				if (valid) {
+    					for (int i = 0; i < employeeName.length(); i++) {
+    						if (!Character.isLetter(employeeName.charAt(i)) && employeeName.charAt(i) != ' ') {
+    							valid = false;
+    							break;
+    						}
+    					}
+    				}
+    				if (valid) break;
+    				System.out.println("Invalid name. Letters Only.");
+    			}
+
+    			String position;
+    			while (true) {
+    				System.out.print("Enter position: ");
+    				position = sc.nextLine();
+    				if (!position.trim().isEmpty()) break;
+    				System.out.println("Invalid position. Cannot be empty.");
+    			}
+
+    			Command cmd = new HireEmployeeCommand(system, employeeName, position);
+    			invoker.execute(cmd);
+
+    		} else if (choice == 2) {
+    			String staffToFire;
+    			while (true) {
+    				System.out.print("Enter Staff ID to fire: ");
+    				staffToFire = sc.nextLine();
+    				if (!staffToFire.trim().isEmpty()) break;
+    				System.out.println("Invalid ID. Cannot be empty.");
+    			}
+
+    			Command cmd = new FireEmployeeCommand(system, staffToFire);
+    			invoker.execute(cmd);
+
+    		} else if (choice == 3) {
+    			invoker.undoLast();
+
+    		} else if (choice == 4) {
+    			System.out.println("Exiting HR Department...");
+    			return;
+
+    		} else {
+    			System.out.println("Invalid choice.");
+    		}
     	}
    }
 
     public static void runRadiology(Scanner scnr) {
         System.out.println("\n=== Radiology Department ===");
+        CommandInvoker invoker = new CommandInvoker();
 
         System.out.print("Enter patient name: ");
         String patientName = readNonEmptyString(scnr);
@@ -267,36 +329,36 @@ public class Main {
         Patient patient = new Patient(patientName);
 
         Radiology radioImageDept = new Radiology();
-        
+
         FileHandler fh = new FileHandler("machineOrders.txt");
         String record = fh.findRecord(patientName);
         if (record != null) {
-        	
+
         	String[] fields = record.split(",", -1);
         	Doctor doctor = radioImageDept.getDoctor(fields[1]);
         	MachineOrders orders = new MachineOrders(patient, doctor, fields[2]);
-        	
+
         	fh = new FileHandler("radioImageAppointments.txt");
         	record = fh.findRecord(patientName);
-        	
+
         	if (record == null) {
-        	
-	        	radioAppointmentScheduler(scnr, radioImageDept, patient, orders);
-		        
+
+		        radioAppointmentScheduler(scnr, radioImageDept, patient, orders, invoker);
+
         	} else {
-        		
+
         		RadiologyAppt appt = radioImageDept.getAppointment(patientName);
-        		
-        		radioAppointmentExecuter(scnr, radioImageDept, appt, orders);
-        		
+
+        		radioAppointmentExecuter(scnr, radioImageDept, appt, orders, invoker);
+
         	}
         } else {
         	System.out.println("You don't currently have any doctor's orders to make an appointment with the Radiology and Imaging department. \nIf you think this is a mistake, please contact your doctor.");
         }
-	        
+
     }
     
-    private static void radioAppointmentScheduler(Scanner scnr, Radiology radioImageDept, Patient patient, MachineOrders orders) {
+    private static void radioAppointmentScheduler(Scanner scnr, Radiology radioImageDept, Patient patient, MachineOrders orders, CommandInvoker invoker) {
     	System.out.println(patient.getName() + " currently needs a(n) " + orders.getType()
 		        + ". Would you like to schedule an appointment with the Radiology and Imaging department? (y/n)");
 		String ans = scnr.nextLine().trim().toLowerCase();
@@ -377,7 +439,10 @@ public class Main {
 		        	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1], 0);
 		        }
 		
-		        boolean booked = radioImageDept.scheduleAppt(patient, orders, start, end);
+		        Command cmd = new ScheduleRadiologyApptCommand(radioImageDept, patient, orders, start, end);
+		        invoker.execute(cmd);
+		        RadiologyAppt bookedAppt = radioImageDept.getAppointment(patient.getName());
+		        boolean booked = bookedAppt != null;
 		
 		        if (booked) {
 		            System.out.println("Great! Your appointment has been booked successfully.");
@@ -404,24 +469,27 @@ public class Main {
 		}
     }
     
-    private static void radioAppointmentExecuter(Scanner scnr, Radiology radioImageDept, RadiologyAppt appt, MachineOrders orders) {
-    	
+    private static void radioAppointmentExecuter(Scanner scnr, Radiology radioImageDept, RadiologyAppt appt, MachineOrders orders, CommandInvoker invoker) {
+
     	System.out.println("You currently have a(n)" + orders.getType() + " appointment scheduled. Would you like to handle that now? (y/n)");
 		String ans = scnr.nextLine().trim().toLowerCase();
-		
+
         while (!(ans.equals("y") || ans.equals("n"))) {
             System.out.print("Please enter y or n: ");
             ans = scnr.nextLine().trim().toLowerCase();
         }
-        
-        radioImageDept.executeAppt(appt, "This patient is not currently dying"); // the results would be entered by the examiner at the actual appointment, beyond the scope of this project
-    	
+
+        if (ans.equals("y")) {
+            Command cmd = new ExecuteRadiologyApptCommand(radioImageDept, appt, "This patient is not currently dying"); // the results would be entered by the examiner at the actual appointment, beyond the scope of this project
+            invoker.execute(cmd);
+        }
+
     }
 
     public static void runICU(Scanner sc) {
         System.out.println("\n=== ICU Department ===");
 
-        ICUCommandInvoker invoker = new ICUCommandInvoker();
+        CommandInvoker invoker = new CommandInvoker();
 
         while (true) {
 
@@ -445,10 +513,10 @@ public class Main {
         int action = readPositiveInt(sc);
 
         if (action == 1) {
-            ICUCommand cmd = buildAdmitPatientCommand(sc, nurse);
+            Command cmd = buildAdmitPatientCommand(sc, nurse);
             if (cmd != null) invoker.execute(cmd);
         } else if (action == 2) {
-            ICUCommand cmd = buildAssignNurseCommand(sc, nurse);
+            Command cmd = buildAssignNurseCommand(sc, nurse);
             if (cmd != null) invoker.execute(cmd);
         } else if (action == 3) {
             invoker.undoLast();
@@ -483,7 +551,7 @@ public class Main {
         return storedParts.length > 0 && storedParts[0].equalsIgnoreCase(enteredName);
     }
 
-    public static ICUCommand buildAdmitPatientCommand(Scanner sc, ICUNurse nurse) {
+    public static Command buildAdmitPatientCommand(Scanner sc, ICUNurse nurse) {
         System.out.println("\n--- Current ICU Patients ---");
         new FileHandler("icuPatients.txt").readRecords();
         System.out.println("----------------------------\n");
@@ -515,7 +583,7 @@ public class Main {
         return new AdmitPatientCommand(nurse, patient, record, fh);
     }
 
-    public static ICUCommand buildAssignNurseCommand(Scanner sc, ICUNurse nurse) {
+    public static Command buildAssignNurseCommand(Scanner sc, ICUNurse nurse) {
         System.out.println("\n--- Current ICU Patients ---");
         new FileHandler("icuPatients.txt").readRecords();
         System.out.println("----------------------------");

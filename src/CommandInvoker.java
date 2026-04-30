@@ -1,9 +1,9 @@
 import java.util.Stack;
 
-public class ICUCommandInvoker {
-    private final Stack<ICUCommand> history = new Stack<>();
+public class CommandInvoker {
+    private final Stack<Command> history = new Stack<>();
 
-    public void execute(ICUCommand command) {
+    public void execute(Command command) {
         command.execute();
         history.push(command);
     }

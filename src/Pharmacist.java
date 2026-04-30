@@ -15,36 +15,36 @@ public class Pharmacist {
         this.staffID = staffID.trim();
     }
 
-    public void dispenseMedication(Patient p, String medicineName, int quantity) {
+    public String dispenseMedication(Patient p, String medicineName, int quantity) {
         Inventory inventory = new Inventory();
 
         if (p == null) {
             System.out.println("Invalid patient.");
-            return;
+            return null;
         }
 
         if (medicineName == null || medicineName.trim().isEmpty()) {
             System.out.println("Invalid medicine name.");
-            return;
+            return null;
         }
 
         if (quantity <= 0) {
             System.out.println("Invalid quantity entered.");
-            return;
+            return null;
         }
 
         medicineName = medicineName.trim();
 
         if (!inventory.checkAvailability(medicineName, quantity)) {
             System.out.println("Medicine unavailable or insufficient stock.");
-            return;
+            return null;
         }
 
         boolean stockUpdated = inventory.updateStock(medicineName, quantity);
 
         if (!stockUpdated) {
             System.out.println("Failed to update inventory.");
-            return;
+            return null;
         }
 
         PrescriptionRecord record = new PrescriptionRecord(medicineName, quantity);
@@ -53,19 +53,20 @@ public class Pharmacist {
 
         System.out.println("Medication dispensed successfully!");
         System.out.println("Transaction ID: " + record.getTransactionID());
+        return record.getTransactionID();
     }
 
-    public void restockMedicine(String medicineName, int quantity) {
+    public String restockMedicine(String medicineName, int quantity) {
         Inventory inventory = new Inventory();
 
         if (medicineName == null || medicineName.trim().isEmpty()) {
             System.out.println("Invalid medicine name.");
-            return;
+            return null;
         }
 
         if (quantity <= 0) {
             System.out.println("Invalid quantity entered.");
-            return;
+            return null;
         }
 
         medicineName = medicineName.trim();
@@ -74,7 +75,7 @@ public class Pharmacist {
 
         if (!restocked) {
             System.out.println("Failed to restock medicine.");
-            return;
+            return null;
         }
 
         RestockRecord record = new RestockRecord(medicineName, quantity);
@@ -83,27 +84,29 @@ public class Pharmacist {
 
         System.out.println("Medicine restocked successfully!");
         System.out.println("Restock Record ID: " + record.getRecordID());
+        return record.getRecordID();
     }
-    public void addNewMedicine(String medicineName, int quantity) {
+    public boolean addNewMedicine(String medicineName, int quantity) {
         Inventory inventory = new Inventory();
 
         if (medicineName == null || medicineName.trim().isEmpty()) {
             System.out.println("Invalid medicine name.");
-            return;
+            return false;
         }
 
         if (quantity <= 0) {
             System.out.println("Invalid quantity entered.");
-            return;
+            return false;
         }
 
         boolean added = inventory.addNewMedicine(medicineName, quantity);
 
         if (!added) {
             System.out.println("Failed to add new medicine.");
-            return;
+            return false;
         }
 
         System.out.println("New medicine added successfully!");
+        return true;
     }
 }

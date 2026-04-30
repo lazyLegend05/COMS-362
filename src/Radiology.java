@@ -30,7 +30,9 @@ public class Radiology {
 			
 			String[] timeData = fields[2].substring(1, fields[2].length() - 1).split(";", -1);
 			for (String slot: timeData) {
-				
+
+				if (slot.isEmpty()) continue;
+
 				String[] dateData = slot.split("-", -1);
 				LocalDateTime start = parseDateStrings(dateData[0], dateData[1]);
 				LocalDateTime end = parseDateStrings(dateData[2], dateData[3]);;

@@ -1,4 +1,4 @@
-public class AssignNurseCommand implements ICUCommand {
+public class AssignNurseCommand implements Command {
     private final ICUNurse nurse;
     private final String patientID;
     private final String nurseID;

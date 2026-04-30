@@ -21,7 +21,7 @@ public class HR {
 		this.staffID = staffID;
 	}
 
-	private Staff createStaff(String name, String id, String position) {
+	Staff createStaff(String name, String id, String position) {
 		
 		if (position == null) {
 			return new Staff(name, id, "unknown");
@@ -223,7 +223,45 @@ public class HR {
 				return (LabStaff) s;
 			}
 		}
-		
+
 		return null;
+	}
+
+	public String hire(String employeeName, String position) {
+		String newHireID = "S" + System.currentTimeMillis();
+		Staff newStaff = createStaff(employeeName, newHireID, position);
+		employees.add(newStaff);
+		FileHandler fileHandler = new FileHandler("StaffRecords.txt");
+		fileHandler.writeRecord(newStaff.toFileString());
+		System.out.println(employeeName + " was hired successfully!");
+		System.out.println("Staff ID: " + newHireID);
+		return newHireID;
+	}
+
+	public boolean fire(String staffToFire) {
+		for (int i = 0; i < employees.size(); i++) {
+			if (employees.get(i).getStaffID().equals(staffToFire)) {
+				System.out.println(employees.get(i).getName() + " was fired.");
+				employees.remove(i);
+				removeFromFile(staffToFire);
+				return true;
+			}
+		}
+		System.out.println("Employee not found.");
+		return false;
+	}
+
+	public void removeEmployee(String staffID) {
+		employees.removeIf(s -> s.getStaffID().equals(staffID));
+	}
+
+	public void rehireFromRecord(String recordLine) {
+		String[] parts = recordLine.split(",", -1);
+		if (parts.length < 3) return;
+		String id = parts[0].trim();
+		String name = parts[1].trim();
+		String position = parts[2].trim();
+		Staff staff = createStaff(name, id, position);
+		employees.add(staff);
 	}
 }

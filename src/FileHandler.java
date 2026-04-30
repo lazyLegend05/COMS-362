@@ -207,6 +207,46 @@ public class FileHandler {
         return fileName;
     }
 
+    public void removeRecordByPrefix(String prefix) {
+        File file = new File(fileName);
+        if (!file.exists()) {
+            System.out.println("File does not exist.");
+            return;
+        }
+
+        List<String> lines = new ArrayList<>();
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!found && line.startsWith(prefix)) {
+                    found = true;
+                } else {
+                    lines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading file.");
+            return;
+        }
+
+        if (!found) {
+            System.out.println("Record not found.");
+            return;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, false))) {
+            for (String line : lines) {
+                bw.write(line);
+                bw.newLine();
+            }
+            System.out.println("Record removed successfully.");
+        } catch (IOException e) {
+            System.out.println("Error writing file.");
+        }
+    }
+
     public Patient findPatient(String patientID) {
         if (!isValidString(patientID)) {
             System.out.println("Invalid patient ID.");

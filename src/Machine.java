@@ -36,22 +36,37 @@ public class Machine {
 	}
 	
 	public void bookTime(LocalDateTime start, LocalDateTime end) {
-		
+
 		if (!isBooked(start, end)) {
 			LocalDateTime[] slot = {start, end};
 			bookedTimes.add(slot);
-			
+
 			FileHandler fh = new FileHandler("radioImageMachines.txt");
-			String timeData = "";
-			for (LocalDateTime[] bookedSlot: bookedTimes) {
-				timeData = timeData + ";" + bookedSlot[0].getMonthValue() + "/" + bookedSlot[0].getDayOfMonth() + "/" + bookedSlot[0].getYear() + "-" + bookedSlot[0].getHour() + "-" 
-						+ bookedSlot[1].getMonthValue() + "/" + bookedSlot[1].getDayOfMonth() + "/" + bookedSlot[1].getYear() + "-" + bookedSlot[1].getHour();
-			}
-			timeData = timeData.substring(1);
+			String timeData = buildTimeData();
 			fh.updateRecord(id, id + "," + type + "," + "[" + timeData + "]");
-			
+
 		}
-		
+
+	}
+
+	public void releaseTime(LocalDateTime start, LocalDateTime end) {
+		bookedTimes.removeIf(pair -> pair[0].equals(start) && pair[1].equals(end));
+
+		FileHandler fh = new FileHandler("radioImageMachines.txt");
+		String timeData = buildTimeData();
+		fh.updateRecord(id, id + "," + type + ",[" + timeData + "]");
+	}
+
+	private String buildTimeData() {
+		if (bookedTimes.isEmpty()) {
+			return "";
+		}
+		String timeData = "";
+		for (LocalDateTime[] bookedSlot : bookedTimes) {
+			timeData = timeData + ";" + bookedSlot[0].getMonthValue() + "/" + bookedSlot[0].getDayOfMonth() + "/" + bookedSlot[0].getYear() + "-" + bookedSlot[0].getHour() + "-"
+					+ bookedSlot[1].getMonthValue() + "/" + bookedSlot[1].getDayOfMonth() + "/" + bookedSlot[1].getYear() + "-" + bookedSlot[1].getHour();
+		}
+		return timeData.substring(1);
 	}
 	
 }

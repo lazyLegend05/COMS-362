@@ -1,4 +1,4 @@
-public class AdmitPatientCommand implements ICUCommand {
+public class AdmitPatientCommand implements Command {
     private final ICUNurse nurse;
     private final Patient patient;
     private final ICURecord record;
