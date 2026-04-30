@@ -82,13 +82,28 @@ public class HR {
 			System.out.println("Enter employee name: ");
 			employeeName = input.nextLine();
 			
+			boolean valid = true;
+			
 			// Checks to make sure that HR has entered the employees name
 			if (employeeName.trim().isEmpty()) {
-				System.out.println("Invalid name.");
+				valid = false;
 			} else {
+				for(int i = 0; i < employeeName.length(); i++) {
+					if(!Character.isLetter(employeeName.charAt(i)) && employeeName.charAt(i) != ' ') {
+						valid = false;
+						break;
+					}
+				}
+			}
+			
+			if(valid) {
 				break;
 			}
+			
+			System.out.println("Invalid name. Letters Only.");
 		}
+		
+	
 		
 		String position;
 		
@@ -97,12 +112,11 @@ public class HR {
 			System.out.print("Enter position: ");
 			position = input.nextLine();
 			
-			// Checks to make sure that HR has entered the employees position
-			if(position.trim().isEmpty()) {
-				System.out.println("Invalid position");
-			} else {
+			if(!position.trim().isEmpty()) {
 				break;
 			}
+			
+			System.out.println("Invalid position. Cannot be empty.");
 		} 
 		
 		// Generates the new hires unique staffID
@@ -127,8 +141,18 @@ public class HR {
 	public void fire() {
 		Scanner input = new Scanner(System.in);
 		
-		System.out.print("Enter Staff ID to fire: ");
-		String staffToFire = input.nextLine();
+		String staffToFire;
+		while(true) {
+			System.out.print("Enter Staff ID to fire: ");
+			staffToFire = input.nextLine();
+			
+			if(!staffToFire.trim().isEmpty()) {
+				break;
+			}
+			
+			System.out.println("Invalid ID. Cannot be empty.");
+			
+		}
 		
 		boolean found = false;
 		
