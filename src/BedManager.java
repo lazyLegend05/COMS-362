@@ -10,7 +10,9 @@ public class BedManager {
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
+                if (parts.length < 3) continue;
                 if (parts[2].equalsIgnoreCase("available")) {
                     available.add(new Bed(parts[0], parts[1], parts[2]));
                 }
@@ -28,8 +30,9 @@ public class BedManager {
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
-                if (parts[0].equalsIgnoreCase(bedID) &&
+                if (parts.length >= 3 && parts[0].equalsIgnoreCase(bedID) &&
                         parts[2].equalsIgnoreCase("available")) {
                     line = parts[0] + "," + parts[1] + ",occupied," + patientID;
                     assigned = true;
@@ -52,5 +55,59 @@ public class BedManager {
         }
 
         return assigned;
+    }
+
+    public String findPatientBed(String patientID) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+                if (parts.length >= 4 && parts[3].equalsIgnoreCase(patientID)) {
+                    return parts[0];
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading beds file.");
+        }
+        return null;
+    }
+
+    public boolean freeBed(String patientID) {
+        List<String> updatedLines = new ArrayList<>();
+        boolean found = false;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                String[] parts = line.split(",");
+                if (parts.length >= 4 && parts[3].equalsIgnoreCase(patientID)) {
+                    line = parts[0] + "," + parts[1] + ",available";
+                    found = true;
+                }
+                updatedLines.add(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading beds.");
+            return false;
+        }
+
+        if (!found) {
+            System.out.println("No bed found for this patient.");
+            return false;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
+            for (String l : updatedLines) {
+                bw.write(l);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Error updating beds.");
+            return false;
+        }
+
+        return true;
     }
 }

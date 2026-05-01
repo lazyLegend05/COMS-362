@@ -104,7 +104,8 @@ public class Main {
             System.out.println("\n=== Emergency Care Department ===");
             System.out.println("1. Register New Patient");
             System.out.println("2. Assign Bed to Patient");
-            System.out.println("3. Exit Emergency Department");
+            System.out.println("3. Discharge Patient");
+            System.out.println("4. Exit Emergency Department");
             System.out.print("Choose option: ");
             int emergencyChoice = readPositiveInt(sc);
 
@@ -160,6 +161,20 @@ public class Main {
                     System.out.println("Patient found: " + foundPatient.getName()
                             + ", Age: " + foundPatient.getAge());
 
+                    // check if patient already has a bed
+                    String currentBed = bedManager.findPatientBed(patientID);
+                    if (currentBed != null) {
+                        System.out.println("Patient is currently occupying bed: " + currentBed);
+                        System.out.print("Do you want to switch beds? (yes/no): ");
+                        String switchInput = readYesNo(sc);
+                        if (!switchInput.equals("yes")) {
+                            System.out.println("Bed assignment unchanged.");
+                            break;
+                        }
+                        bedManager.freeBed(patientID);
+                        System.out.println("Bed " + currentBed + " has been freed.");
+                    }
+
                     java.util.List<Bed> availableBeds = bedManager.getAvailableBeds();
                     if (availableBeds.isEmpty()) {
                         System.out.println("No beds available. Placing patient on waiting list.");
@@ -185,12 +200,19 @@ public class Main {
                     break;
 
                 case 3:
+                    System.out.print("Enter patient ID to discharge: ");
+                    String dischargePatientID = readEmergencyPatientID(sc);
+                    Receptionist receptionist = new Receptionist("Jane", "R001");
+                    receptionist.dischargePatient(dischargePatientID, sc);
+                    break;
+
+                case 4:
                     running = false;
                     System.out.println("Exiting Emergency Department.");
                     break;
 
                 default:
-                    System.out.println("Invalid option. Please choose 1, 2, or 3.");
+                    System.out.println("Invalid option. Please choose 1, 2, 3, or 4.");
             }
         }
     }
