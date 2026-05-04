@@ -1,5 +1,8 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Main {
@@ -18,6 +21,7 @@ public class Main {
         System.out.println("4. Radiology / Imaging Department");
         System.out.println("5. ICU Department");
 		System.out.println("6. HR Department");
+		System.out.println("7. Labor and Delivery Department");
         System.out.print("Choose department: ");
 
         int choice = readPositiveInt(sc);
@@ -41,12 +45,16 @@ public class Main {
 			case 6:
 				runHR(sc, hr);
 				break;
+			case 7:
+				runLaborDelivery(sc);
+				break;
             default:
                 System.out.println("Invalid choice.");
         }
 
         sc.close();
     }
+    
     public static void runPharmacy(Scanner sc) {
         System.out.println("\n=== Pharmacy Department ===");
         System.out.println("1. Dispense Medication");
@@ -667,4 +675,56 @@ public class Main {
             System.out.print("Please enter yes or no: ");
         }
     }
+    
+    
+    
+    public static void runLaborDelivery (Scanner scnr) {
+    	
+    	System.out.println("Welcome to the Labor and Delivery department! \nWould you like to create a birth certificate for a new baby? (y/n)");
+    	
+    	String ans = scnr.nextLine().trim().toLowerCase();
+        while (!(ans.equals("y") || ans.equals("n"))) {
+            System.out.print("Please enter y or n: ");
+            ans = scnr.nextLine().trim().toLowerCase();
+        }
+        
+        if (ans.equals("y")) {
+        	
+        	boolean created = false;
+        	FileHandler fh = null;
+        	while (!created) {
+        		Random rand = new Random();
+        		try {
+        			fh = FileHandler.createFile("BC" + String.format("%04d", rand.nextInt(10000)) + ".txt");
+        			if (fh != null) {
+        				created = true;
+        			}
+        		} catch (IOException e) {
+        			System.out.println("Sorry, we couldn't create a new birth certificate file");
+        			return;
+        		}
+        	}
+        	
+        	LaborDelivery ld = new LaborDelivery("Iowa State Virtual Hospital", "Ames", "Iowa");
+        	ld.createBirthCertificate(scnr, fh);
+        	
+        	System.out.println("Would you like to send this birth certificate to the registrar's office to certify it? (y/n)");
+        	ans = scnr.nextLine().trim().toLowerCase();
+            while (!(ans.equals("y") || ans.equals("n"))) {
+                System.out.print("Please enter y or n: ");
+                ans = scnr.nextLine().trim().toLowerCase();
+            }
+            
+            if (ans.equals("y")) {
+            	LocalDate certDate = LocalDate.now().plusDays(50);
+            	ld.certifyBirthCertificate(fh, certDate); // simulated business delay
+            	System.out.println("Great! The birth certificate is certified on " + certDate.toString() + ".");
+            }
+        	
+        } else {
+        	System.out.println("Okay, have a nice day");
+        }
+    	
+    }
+    
 }
