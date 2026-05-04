@@ -12,7 +12,6 @@ public class EmergencyDoctor {
     public String getName() { return name; }
     public String getDoctorID() { return doctorID; }
 
-    // checks the file and returns an EmergencyDoctor if found, null if not
     public static EmergencyDoctor validate(String doctorID, String name) {
         String filePath = "/Users/tmagikar/Desktop/COMS 3620/COMS-362/src/emergencyDoctors.txt";
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -35,7 +34,7 @@ public class EmergencyDoctor {
     public boolean inspectPatient(Patient patient, java.util.Scanner sc) {
         System.out.println("\nDr. " + name + " is inspecting " + patient.getName() + "...");
         System.out.print("Enter doctor's notes on patient condition: ");
-        String notes = sc.nextLine().trim();
+        sc.nextLine();
 
         System.out.print("Is patient ready to be discharged? (yes/no): ");
         String ready = sc.nextLine().trim().toLowerCase();

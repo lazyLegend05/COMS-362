@@ -152,66 +152,12 @@ public class Main {
                     System.out.println("Registration confirmed.");
                     System.out.println("Generated Patient ID: " + record.getPatientID());
                     break;
-
                 case 2:
-                    FileHandler emergencyFile = new FileHandler("emergency_records.txt");
-                    BedManager bedManager = new BedManager();
-
-                    System.out.print("Enter patient ID: ");
-                    String patientID = readEmergencyPatientID(sc);
-
-                    Patient foundPatient = emergencyFile.findPatient(patientID);
-                    if (foundPatient == null) {
-                        System.out.println("Patient not found.");
-                        break;
-                    }
-
-                    System.out.println("Patient found: " + foundPatient.getName()
-                            + ", Age: " + foundPatient.getAge());
-
-                    // check if patient already has a bed
-                    String currentBed = bedManager.findPatientBed(patientID);
-                    if (currentBed != null) {
-                        System.out.println("Patient is currently occupying bed: " + currentBed);
-                        System.out.print("Do you want to switch beds? (yes/no): ");
-                        String switchInput = readYesNo(sc);
-                        if (!switchInput.equals("yes")) {
-                            System.out.println("Bed assignment unchanged.");
-                            break;
-                        }
-                        bedManager.freeBed(patientID);
-                        System.out.println("Bed " + currentBed + " has been freed.");
-                    }
-
-                    java.util.List<Bed> availableBeds = bedManager.getAvailableBeds();
-                    if (availableBeds.isEmpty()) {
-                        System.out.println("No beds available. Placing patient on waiting list.");
-                        break;
-                    }
-
-                    System.out.println("Available beds:");
-                    for (Bed b : availableBeds) {
-                        System.out.println("  Bed ID: " + b.getBedID()
-                                + " | Ward: " + b.getWard());
-                    }
-
-                    System.out.print("Enter bed ID to assign: ");
-                    String bedID = readBedID(sc);
-
-                    boolean success = bedManager.assignBed(bedID, patientID);
-                    if (success) {
-                        System.out.println("Bed " + bedID + " successfully assigned to "
-                                + foundPatient.getName());
-                    } else {
-                        System.out.println("Could not assign bed. Please check the bed ID.");
-                    }
+                    new AssignBedOperation().execute(sc);
                     break;
 
                 case 3:
-                    System.out.print("Enter patient ID to discharge: ");
-                    String dischargePatientID = readEmergencyPatientID(sc);
-                    Receptionist receptionist = new Receptionist("Jane", "R001");
-                    receptionist.dischargePatient(dischargePatientID, sc);
+                    new DischargePatientOperation().execute(sc);
                     break;
 
                 case 4:
