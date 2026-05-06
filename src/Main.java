@@ -4,96 +4,120 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        
         Scanner sc = new Scanner(System.in);
+        HR hr = new HR("Admin", "HR001");
+        hr.loadFromFile();
 
-		HR hr = new HR("Admin", "HR001");
+        boolean running = true;
 
-		hr.loadFromFile();
+        while (running) {
+            System.out.println("=== Hospital Management System ===");
+            System.out.println("1. Pharmacy Department");
+            System.out.println("2. Emergency Care Department");
+            System.out.println("3. Laboratory Department");
+            System.out.println("4. Radiology / Imaging Department");
+            System.out.println("5. ICU Department");
+            System.out.println("6. HR Department");
+            System.out.println("7. Exit System");
+            System.out.print("Choose department: ");
 
-        System.out.println("=== Hospital Management System ===");
-        System.out.println("1. Pharmacy Department");
-        System.out.println("2. Emergency Care Department");
-        System.out.println("3. Laboratory Department");
-        System.out.println("4. Radiology / Imaging Department");
-        System.out.println("5. ICU Department");
-		System.out.println("6. HR Department");
-        System.out.print("Choose department: ");
+            int choice = readPositiveInt(sc);
 
-        int choice = readPositiveInt(sc);
-
-        switch (choice) {
-            case 1:
-                runPharmacy(sc);
-                break;
-            case 2:
-                runEmergency(sc);
-                break;
-            case 3:
-                runLab(sc, hr);
-                break;
-            case 4:
-                runRadiology(sc);
-                break;
-            case 5:
-                runICU(sc);
-                break;
-			case 6:
-				runHR(sc, hr);
-				break;
-            default:
-                System.out.println("Invalid choice.");
+            switch (choice) {
+                case 1:
+                    runPharmacy(sc);
+                    break;
+                case 2:
+                    runEmergency(sc);
+                    break;
+                case 3:
+                    runLab(sc, hr);
+                    break;
+                case 4:
+                    runRadiology(sc);
+                    break;
+                case 5:
+                    runICU(sc);
+                    break;
+                case 6:
+                    runHR(sc, hr);
+                    break;
+                case 7:
+                    running = false;
+                    System.out.println("Exiting Hospital Management System.");
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
         }
 
         sc.close();
     }
+
     public static void runPharmacy(Scanner sc) {
-        System.out.println("\n=== Pharmacy Department ===");
-        System.out.println("1. Dispense Medication");
-        System.out.println("2. Restock Medicine");
-        System.out.println("3. Add New Medicine");
-        System.out.print("Choose pharmacy operation: ");
-
-        int pharmacyChoice = readPositiveInt(sc);
         Pharmacist pharmacist = new Pharmacist("Aadi", "P001");
+        Inventory inventory = new Inventory();
+        boolean running = true;
 
-        switch (pharmacyChoice) {
-            case 1:
-                System.out.print("Enter patient name: ");
-                String patientName = readNonEmptyString(sc);
+        while (running) {
+            inventory.autoRestockLowStockMedicines();
+            System.out.println("\n=== Pharmacy Department ===");
+            System.out.println("1. Dispense Medication");
+            System.out.println("2. Process Prescription Record");
+            System.out.println("3. Restock Medicine");
+            System.out.println("4. Add New Medicine");
+            System.out.println("5. Exit Pharmacy Department");
+            System.out.print("Choose pharmacy operation: ");
 
-                System.out.print("Enter medicine name: ");
-                String medicineName = readNonEmptyString(sc);
+            int pharmacyChoice = readPositiveInt(sc);
 
-                System.out.print("Enter quantity prescribed: ");
-                int quantity = readPositiveInt(sc);
+            switch (pharmacyChoice) {
+                case 1:
+                    System.out.print("Enter patient name: ");
+                    String patientName = readNonEmptyString(sc);
 
-                Patient patient = new Patient(patientName);
-                pharmacist.dispenseMedication(patient, medicineName, quantity);
-                break;
+                    System.out.print("Enter medicine name: ");
+                    String medicineName = readNonEmptyString(sc);
 
-            case 2:
-                System.out.print("Enter medicine name to restock: ");
-                String restockMedicine = readNonEmptyString(sc);
+                    System.out.print("Enter quantity prescribed: ");
+                    int quantity = readPositiveInt(sc);
 
-                System.out.print("Enter quantity to add: ");
-                int restockQty = readPositiveInt(sc);
+                    Patient patient = new Patient(patientName);
+                    pharmacist.dispenseMedication(patient, medicineName, quantity);
+                    break;
 
-                pharmacist.restockMedicine(restockMedicine, restockQty);
-                break;
+                case 2:
+                    pharmacist.processPrescriptionOrder(sc);
+                    break;
 
-            case 3:
-                System.out.print("Enter new medicine name: ");
-                String newMedicineName = readNonEmptyString(sc);
+                case 3:
+                    System.out.print("Enter medicine name to restock: ");
+                    String restockMedicine = readNonEmptyString(sc);
 
-                System.out.print("Enter starting quantity: ");
-                int newMedicineQty = readPositiveInt(sc);
+                    System.out.print("Enter quantity to add: ");
+                    int restockQty = readPositiveInt(sc);
 
-                pharmacist.addNewMedicine(newMedicineName, newMedicineQty);
-                break;
+                    pharmacist.restockMedicine(restockMedicine, restockQty);
+                    break;
 
-            default:
-                System.out.println("Invalid pharmacy option.");
+                case 4:
+                    System.out.print("Enter new medicine name: ");
+                    String newMedicineName = readNonEmptyString(sc);
+
+                    System.out.print("Enter starting quantity: ");
+                    int newMedicineQty = readPositiveInt(sc);
+
+                    pharmacist.addNewMedicine(newMedicineName, newMedicineQty);
+                    break;
+
+                case 5:
+                    running = false;
+                    System.out.println("Returning to main menu.");
+                    break;
+
+                default:
+                    System.out.println("Invalid pharmacy option.");
+            }
         }
     }
 

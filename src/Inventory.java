@@ -3,6 +3,8 @@ import java.util.ArrayList;
 
 public class Inventory {
     private String fileName = "src/inventory.txt";
+    private static final int AUTO_RESTOCK_THRESHOLD = 50;
+    private static final int AUTO_RESTOCK_TARGET = 100;
 
     private boolean isValidMedicineName(String medicineName) {
         return medicineName != null && !medicineName.trim().isEmpty();
@@ -36,6 +38,68 @@ public class Inventory {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public boolean medicineExists(String medicineName) {
+        return getQuantity(medicineName) >= 0;
+    }
+
+    public void autoRestockLowStockMedicines() {
+        ArrayList<String> records = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                if (!isValidInventoryLine(line)) {
+                    System.out.println("Invalid inventory data found: " + line);
+                    continue;
+                }
+
+                records.add(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading inventory file.");
+            return;
+        }
+
+        for (String record : records) {
+            String[] parts = record.split(",");
+            String medicineName = parts[0].trim();
+            int quantity = Integer.parseInt(parts[1].trim());
+
+            autoRestockIfNeeded(medicineName, quantity);
+        }
+    }
+
+    public int getQuantity(String medicineName) {
+        if (!isValidMedicineName(medicineName)) {
+            System.out.println("Invalid medicine name.");
+            return -1;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                if (!isValidInventoryLine(line)) {
+                    System.out.println("Invalid inventory data found: " + line);
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                String name = parts[0].trim();
+                int qty = Integer.parseInt(parts[1].trim());
+
+                if (name.equalsIgnoreCase(medicineName.trim())) {
+                    return qty;
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading inventory file.");
+        }
+
+        return -1;
     }
 
     public boolean checkAvailability(String medicineName, int requiredQty) {
@@ -86,6 +150,7 @@ public class Inventory {
 
         ArrayList<String> updatedLines = new ArrayList<>();
         boolean found = false;
+        int finalQuantity = -1;
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -109,6 +174,7 @@ public class Inventory {
                     }
 
                     qty -= quantityUsed;
+                    finalQuantity = qty;
                     line = name + "," + qty;
                 }
 
@@ -134,7 +200,33 @@ public class Inventory {
             return false;
         }
 
+        autoRestockIfNeeded(medicineName.trim(), finalQuantity);
         return true;
+    }
+
+    private void autoRestockIfNeeded(String medicineName, int currentQuantity) {
+        if (currentQuantity < 0 || currentQuantity >= AUTO_RESTOCK_THRESHOLD) {
+            return;
+        }
+
+        int quantityToAdd = AUTO_RESTOCK_TARGET - currentQuantity;
+        if (quantityToAdd <= 0) {
+            return;
+        }
+
+        boolean restocked = restockMedicine(medicineName, quantityToAdd);
+        if (!restocked) {
+            System.out.println("Automatic restock failed for " + medicineName + ".");
+            return;
+        }
+
+        RestockRecord record = new RestockRecord(medicineName, quantityToAdd);
+        FileHandler fh = new FileHandler("restockRecords.txt");
+        fh.writeRecord(record.toFileString());
+
+        System.out.println("Automatic restock triggered for " + medicineName
+                + ". Added " + quantityToAdd + " units to restore stock to "
+                + AUTO_RESTOCK_TARGET + ".");
     }
 
     public boolean restockMedicine(String medicineName, int quantityToAdd) {

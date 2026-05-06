@@ -9,7 +9,21 @@ public class FileHandler {
             throw new IllegalArgumentException("File name cannot be null or empty.");
         }
 
-        this.fileName = fileName.trim();
+        this.fileName = resolveFileName(fileName.trim());
+    }
+
+    private String resolveFileName(String requestedName) {
+        File directFile = new File(requestedName);
+        if (directFile.exists() || directFile.isAbsolute() || requestedName.contains(File.separator)) {
+            return requestedName;
+        }
+
+        File srcFile = new File("src", requestedName);
+        if (srcFile.exists()) {
+            return srcFile.getPath();
+        }
+
+        return requestedName;
     }
 
     private boolean isValidString(String value) {
