@@ -7,12 +7,10 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        
         Scanner sc = new Scanner(System.in);
 
-		HR hr = new HR("Admin", "HR001");
-
-		hr.loadFromFile();
+        HR hr = new HR("Admin", "HR001");
+        hr.loadFromFile();
 
         System.out.println("=== Hospital Management System ===");
         System.out.println("1. Pharmacy Department");
@@ -20,8 +18,8 @@ public class Main {
         System.out.println("3. Laboratory Department");
         System.out.println("4. Radiology / Imaging Department");
         System.out.println("5. ICU Department");
-		System.out.println("6. HR Department");
-		System.out.println("7. Labor and Delivery Department");
+        System.out.println("6. HR Department");
+        System.out.println("7. Labor and Delivery Department");
         System.out.print("Choose department: ");
 
         int choice = readPositiveInt(sc);
@@ -42,67 +40,21 @@ public class Main {
             case 5:
                 runICU(sc);
                 break;
-			case 6:
-				runHR(sc, hr);
-				break;
-			case 7:
-				runLaborDelivery(sc);
-				break;
+            case 6:
+                runHR(sc, hr);
+                break;
+            case 7:
+                runLaborDelivery(sc);
+                break;
             default:
                 System.out.println("Invalid choice.");
         }
 
         sc.close();
     }
-    
+
     public static void runPharmacy(Scanner sc) {
-        System.out.println("\n=== Pharmacy Department ===");
-        System.out.println("1. Dispense Medication");
-        System.out.println("2. Restock Medicine");
-        System.out.println("3. Add New Medicine");
-        System.out.print("Choose pharmacy operation: ");
-
-        int pharmacyChoice = readPositiveInt(sc);
-        Pharmacist pharmacist = new Pharmacist("Aadi", "P001");
-
-        switch (pharmacyChoice) {
-            case 1:
-                System.out.print("Enter patient name: ");
-                String patientName = readNonEmptyString(sc);
-
-                System.out.print("Enter medicine name: ");
-                String medicineName = readNonEmptyString(sc);
-
-                System.out.print("Enter quantity prescribed: ");
-                int quantity = readPositiveInt(sc);
-
-                Patient patient = new Patient(patientName);
-                pharmacist.dispenseMedication(patient, medicineName, quantity);
-                break;
-
-            case 2:
-                System.out.print("Enter medicine name to restock: ");
-                String restockMedicine = readNonEmptyString(sc);
-
-                System.out.print("Enter quantity to add: ");
-                int restockQty = readPositiveInt(sc);
-
-                pharmacist.restockMedicine(restockMedicine, restockQty);
-                break;
-
-            case 3:
-                System.out.print("Enter new medicine name: ");
-                String newMedicineName = readNonEmptyString(sc);
-
-                System.out.print("Enter starting quantity: ");
-                int newMedicineQty = readPositiveInt(sc);
-
-                pharmacist.addNewMedicine(newMedicineName, newMedicineQty);
-                break;
-
-            default:
-                System.out.println("Invalid pharmacy option.");
-        }
+        PharmacyMenu.run(sc);
     }
 
     public static void runEmergency(Scanner sc) {
@@ -155,31 +107,29 @@ public class Main {
                 case 2:
                     new AssignBedOperation().execute(sc);
                     break;
-
                 case 3:
                     new DischargePatientOperation().execute(sc);
                     break;
-
                 case 4:
                     running = false;
                     System.out.println("Exiting Emergency Department.");
                     break;
-
                 default:
                     System.out.println("Invalid option. Please choose 1, 2, 3, or 4.");
             }
         }
     }
+
     public static void runLab(Scanner sc, HR hr) {
         System.out.println("\n=== Laboratory Department ===");
 
-		LabStaff labStaff = hr.getLabStaff();
+        LabStaff labStaff = hr.getLabStaff();
 
-		if(labStaff == null){
-			System.out.println("No labStaff available. Lab staff need to be hired.");
-			return;
-		}
-		
+        if (labStaff == null) {
+            System.out.println("No labStaff available. Lab staff need to be hired.");
+            return;
+        }
+
         FileHandler fileHandler = new FileHandler("lab.txt");
 
         System.out.print("Enter patient name: ");
@@ -201,38 +151,36 @@ public class Main {
         String test = readNonEmptyString(sc);
 
         Patient patient = new Patient(name, age, contact);
-		
         labStaff.registerLabTest(patient, test, fileHandler);
 
         System.out.println("Lab test request complete");
     }
-	
-	public static void runHR(Scanner sc, HR system) {
-    	while(true) {
-    		
-    		System.out.println("\n=== HR DEPARTMENT ===");
-    		System.out.println("1. Hire Employee");
-    		System.out.println("2. Fire Employee");
-    		System.out.println("3. Exit HR");
-    		System.out.print("Choose option: ");
 
-    		int choice = Integer.parseInt(sc.nextLine());
+    public static void runHR(Scanner sc, HR system) {
+        while (true) {
+            System.out.println("\n=== HR DEPARTMENT ===");
+            System.out.println("1. Hire Employee");
+            System.out.println("2. Fire Employee");
+            System.out.println("3. Exit HR");
+            System.out.print("Choose option: ");
 
-    		switch (choice) {
-    			case 1:
-    				system.hire();
-    				break;
-    			case 2:
-    				system.fire();
-    				break;
-    			case 3:
-    				System.out.println("Exiting HR Department...");
-    				return;
-    			default:
-    				System.out.println("Invalid choice.");
-    		}	
-    	}
-   }
+            int choice = Integer.parseInt(sc.nextLine());
+
+            switch (choice) {
+                case 1:
+                    system.hire();
+                    break;
+                case 2:
+                    system.fire();
+                    break;
+                case 3:
+                    System.out.println("Exiting HR Department...");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+    }
 
     public static void runRadiology(Scanner scnr) {
         System.out.println("\n=== Radiology Department ===");
@@ -241,157 +189,136 @@ public class Main {
         String patientName = readNonEmptyString(scnr);
 
         Patient patient = new Patient(patientName);
-
         Radiology radioImageDept = new Radiology();
-        
+
         FileHandler fh = new FileHandler("machineOrders.txt");
         String record = fh.findRecord(patientName);
         if (record != null) {
-        	
-        	String[] fields = record.split(",", -1);
-        	Doctor doctor = radioImageDept.getDoctor(fields[1]);
-        	MachineOrders orders = new MachineOrders(patient, doctor, fields[2]);
-        	
-        	fh = new FileHandler("radioImageAppointments.txt");
-        	record = fh.findRecord(patientName);
-        	
-        	if (record == null) {
-        	
-	        	radioAppointmentScheduler(scnr, radioImageDept, patient, orders);
-		        
-        	} else {
-        		
-        		RadiologyAppt appt = radioImageDept.getAppointment(patientName);
-        		
-        		radioAppointmentExecuter(scnr, radioImageDept, appt, orders);
-        		
-        	}
+            String[] fields = record.split(",", -1);
+            Doctor doctor = radioImageDept.getDoctor(fields[1]);
+            MachineOrders orders = new MachineOrders(patient, doctor, fields[2]);
+
+            fh = new FileHandler("radioImageAppointments.txt");
+            record = fh.findRecord(patientName);
+
+            if (record == null) {
+                radioAppointmentScheduler(scnr, radioImageDept, patient, orders);
+            } else {
+                RadiologyAppt appt = radioImageDept.getAppointment(patientName);
+                radioAppointmentExecuter(scnr, radioImageDept, appt, orders);
+            }
         } else {
-        	System.out.println("You don't currently have any doctor's orders to make an appointment with the Radiology and Imaging department. \nIf you think this is a mistake, please contact your doctor.");
+            System.out.println("You don't currently have any doctor's orders to make an appointment with the Radiology and Imaging department. \nIf you think this is a mistake, please contact your doctor.");
         }
-	        
     }
-    
+
     private static void radioAppointmentScheduler(Scanner scnr, Radiology radioImageDept, Patient patient, MachineOrders orders) {
-    	System.out.println(patient.getName() + " currently needs a(n) " + orders.getType()
-		        + ". Would you like to schedule an appointment with the Radiology and Imaging department? (y/n)");
-		String ans = scnr.nextLine().trim().toLowerCase();
-		
-		while (!(ans.equals("y") || ans.equals("n"))) {
-		    System.out.print("Please enter y or n: ");
-		    ans = scnr.nextLine().trim().toLowerCase();
-		}
-		
-		while (ans.equals("y")) {
-			System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
-			String date = scnr.nextLine();
-			int year = -1;
-			int month = -1;
-			int day = -1;
-			boolean valid = false;
-			while (!valid) {
-		    	try {
-		    		
-		        	if (date.length() != 10 || date.charAt(2) != '/' || date.charAt(5) != '/') {
-		        		throw new NumberFormatException();
-		        	}
-		        	
-		    		month = Integer.parseInt(date.substring(0, 2));
-		    		day = Integer.parseInt(date.substring(3, 5));
-		    		year = Integer.parseInt(date.substring(6));
-		    		
-		    		if (Radiology.parseDateStrings(date, "23").isBefore(LocalDateTime.now())) {
-		    			System.out.println("You cannot schedule an appointment on a day that has already passed. Please try again.");
-		    		} else {
-		    			valid = true;
-		    			break;
-		    		}
-		    		
-		    	} catch (NumberFormatException e) {
-		    		System.out.println("The date you entered was not valid. Please try again.");
-		    	}
-		    	
-		    	System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
-				date = scnr.nextLine();
-		    	
-		    }
-		    
-		    ArrayList<int[]> apptSlots = radioImageDept.getAppointmentSlots(year, month, day, 2, orders.getType());
-		    
-		    System.out.println("Please choose the time you would like your appointment to be (1-" + apptSlots.size() + ")");
-		    System.out.println("Here is a list of available times on the day you've selected:");
-		    System.out.println();
-		    
-		    if (apptSlots.size() > 0) {
-		    	
-		    	for (int i = 1; i <= apptSlots.size(); i++) {
-		    	
-		        	int[] slot = apptSlots.get(i-1);
-		        	
-		        	System.out.print(i + ".");
-		        	for (int k = 0; k < 2; k++) {
-		        		int hour = slot[k];
-		        		boolean am = ((hour%24)/12 <= 0);
-		        		System.out.print(" " + (hour%12 == 0 ? 12 : hour%12) + ":00" + (am ? "am":"pm") + " ");
-		        		if (k == 0) System.out.print("-");
-		        	}
-		        	
-		        	System.out.println();
-		        	
-		        }
-		    	
-		    	System.out.println();
-		        
-		        int choice = readPositiveInt(scnr);
-		
-		        LocalDateTime start = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[0], 0);
-		        LocalDateTime end;
-		        
-		        if (apptSlots.get(choice - 1)[1] >= 24) {
-		        	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1]-24, 0).plusDays(1);
-		        } else {
-		        	end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1], 0);
-		        }
-		
-		        boolean booked = radioImageDept.scheduleAppt(patient, orders, start, end);
-		
-		        if (booked) {
-		            System.out.println("Great! Your appointment has been booked successfully.");
-		            break;
-		        } else {
-		            System.out.println("Sorry, there are no available machines at that time. Would you like to try to book another time? (y/n)");
-		            ans = scnr.nextLine().trim().toLowerCase();
-		            while (!(ans.equals("y") || ans.equals("n"))) {
-		                System.out.print("Please enter y or n: ");
-		                ans = scnr.nextLine().trim().toLowerCase();
-		            }
-		        }
-		        
-		    } else {
-		    	
-		    	System.out.println("Sorry, there are no available machines on that day. Would you like to try to book another time? (y/n)");
-		        ans = scnr.nextLine().trim().toLowerCase();
-		        while (!(ans.equals("y") || ans.equals("n"))) {
-		            System.out.print("Please enter y or n: ");
-		            ans = scnr.nextLine().trim().toLowerCase();
-		        }
-		    	
-		    }
-		}
-    }
-    
-    private static void radioAppointmentExecuter(Scanner scnr, Radiology radioImageDept, RadiologyAppt appt, MachineOrders orders) {
-    	
-    	System.out.println("You currently have a(n)" + orders.getType() + " appointment scheduled. Would you like to handle that now? (y/n)");
-		String ans = scnr.nextLine().trim().toLowerCase();
-		
+        System.out.println(patient.getName() + " currently needs a(n) " + orders.getType()
+                + ". Would you like to schedule an appointment with the Radiology and Imaging department? (y/n)");
+        String ans = scnr.nextLine().trim().toLowerCase();
+
         while (!(ans.equals("y") || ans.equals("n"))) {
             System.out.print("Please enter y or n: ");
             ans = scnr.nextLine().trim().toLowerCase();
         }
-        
-        radioImageDept.executeAppt(appt, "This patient is not currently dying"); // the results would be entered by the examiner at the actual appointment, beyond the scope of this project
-    	
+
+        while (ans.equals("y")) {
+            System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
+            String date = scnr.nextLine();
+            int year = -1;
+            int month = -1;
+            int day = -1;
+            boolean valid = false;
+
+            while (!valid) {
+                try {
+                    if (date.length() != 10 || date.charAt(2) != '/' || date.charAt(5) != '/') {
+                        throw new NumberFormatException();
+                    }
+
+                    month = Integer.parseInt(date.substring(0, 2));
+                    day = Integer.parseInt(date.substring(3, 5));
+                    year = Integer.parseInt(date.substring(6));
+
+                    if (Radiology.parseDateStrings(date, "23").isBefore(LocalDateTime.now())) {
+                        System.out.println("You cannot schedule an appointment on a day that has already passed. Please try again.");
+                    } else {
+                        valid = true;
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("The date you entered was not valid. Please try again.");
+                }
+
+                System.out.println("Please enter the date you would like to schedule your appointment (MM/DD/YYYY):");
+                date = scnr.nextLine();
+            }
+
+            ArrayList<int[]> apptSlots = radioImageDept.getAppointmentSlots(year, month, day, 2, orders.getType());
+
+            System.out.println("Please choose the time you would like your appointment to be (1-" + apptSlots.size() + ")");
+            System.out.println("Here is a list of available times on the day you've selected:");
+            System.out.println();
+
+            if (apptSlots.size() > 0) {
+                for (int i = 1; i <= apptSlots.size(); i++) {
+                    int[] slot = apptSlots.get(i - 1);
+                    System.out.print(i + ".");
+                    for (int k = 0; k < 2; k++) {
+                        int hour = slot[k];
+                        boolean am = ((hour % 24) / 12 <= 0);
+                        System.out.print(" " + (hour % 12 == 0 ? 12 : hour % 12) + ":00" + (am ? "am" : "pm") + " ");
+                        if (k == 0) System.out.print("-");
+                    }
+                    System.out.println();
+                }
+
+                System.out.println();
+                int choice = readPositiveInt(scnr);
+
+                LocalDateTime start = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[0], 0);
+                LocalDateTime end;
+
+                if (apptSlots.get(choice - 1)[1] >= 24) {
+                    end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1] - 24, 0).plusDays(1);
+                } else {
+                    end = LocalDateTime.of(year, month, day, apptSlots.get(choice - 1)[1], 0);
+                }
+
+                boolean booked = radioImageDept.scheduleAppt(patient, orders, start, end);
+
+                if (booked) {
+                    System.out.println("Great! Your appointment has been booked successfully.");
+                    break;
+                } else {
+                    System.out.println("Sorry, there are no available machines at that time. Would you like to try to book another time? (y/n)");
+                    ans = scnr.nextLine().trim().toLowerCase();
+                    while (!(ans.equals("y") || ans.equals("n"))) {
+                        System.out.print("Please enter y or n: ");
+                        ans = scnr.nextLine().trim().toLowerCase();
+                    }
+                }
+            } else {
+                System.out.println("Sorry, there are no available machines on that day. Would you like to try to book another time? (y/n)");
+                ans = scnr.nextLine().trim().toLowerCase();
+                while (!(ans.equals("y") || ans.equals("n"))) {
+                    System.out.print("Please enter y or n: ");
+                    ans = scnr.nextLine().trim().toLowerCase();
+                }
+            }
+        }
+    }
+
+    private static void radioAppointmentExecuter(Scanner scnr, Radiology radioImageDept, RadiologyAppt appt, MachineOrders orders) {
+        System.out.println("You currently have a(n)" + orders.getType() + " appointment scheduled. Would you like to handle that now? (y/n)");
+        String ans = scnr.nextLine().trim().toLowerCase();
+
+        while (!(ans.equals("y") || ans.equals("n"))) {
+            System.out.print("Please enter y or n: ");
+            ans = scnr.nextLine().trim().toLowerCase();
+        }
+
+        radioImageDept.executeAppt(appt, "This patient is not currently dying");
     }
 
     public static void runICU(Scanner sc) {
@@ -400,39 +327,38 @@ public class Main {
         ICUCommandInvoker invoker = new ICUCommandInvoker();
 
         while (true) {
+            System.out.print("Enter nurse username: ");
+            String username = readICUString(sc);
 
-        System.out.print("Enter nurse username: ");
-        String username = readICUString(sc);
+            System.out.print("Enter staffID: ");
+            String staffID = readNurseFileID(sc);
 
-        System.out.print("Enter staffID: ");
-        String staffID = readNurseFileID(sc);
+            if (!isValidICUNurseLogin(username, staffID)) {
+                System.out.println("Invalid nurse credentials. Please verify your username and staff ID.");
+                continue;
+            }
 
-        if (!isValidICUNurseLogin(username, staffID)) {
-            System.out.println("Invalid nurse credentials. Please verify your username and staff ID.");
-            continue;
-        }
+            ICUNurse nurse = new ICUNurse(username, staffID);
 
-        ICUNurse nurse = new ICUNurse(username, staffID);
+            System.out.println("1. Admit patient");
+            System.out.println("2. Assign nurse to patient");
+            System.out.println("3. Undo last action");
+            System.out.print("Choose action: ");
+            int action = readPositiveInt(sc);
 
-        System.out.println("1. Admit patient");
-        System.out.println("2. Assign nurse to patient");
-        System.out.println("3. Undo last action");
-        System.out.print("Choose action: ");
-        int action = readPositiveInt(sc);
+            if (action == 1) {
+                ICUCommand cmd = buildAdmitPatientCommand(sc, nurse);
+                if (cmd != null) invoker.execute(cmd);
+            } else if (action == 2) {
+                ICUCommand cmd = buildAssignNurseCommand(sc, nurse);
+                if (cmd != null) invoker.execute(cmd);
+            } else if (action == 3) {
+                invoker.undoLast();
+            } else {
+                System.out.println("Invalid choice.");
+            }
 
-        if (action == 1) {
-            ICUCommand cmd = buildAdmitPatientCommand(sc, nurse);
-            if (cmd != null) invoker.execute(cmd);
-        } else if (action == 2) {
-            ICUCommand cmd = buildAssignNurseCommand(sc, nurse);
-            if (cmd != null) invoker.execute(cmd);
-        } else if (action == 3) {
-            invoker.undoLast();
-        } else {
-            System.out.println("Invalid choice.");
-        }
-
-        break;
+            break;
         }
     }
 
@@ -582,6 +508,7 @@ public class Main {
             System.out.print("Input cannot be empty. Please try again: ");
         }
     }
+
     public static String readAlphaOnly(Scanner sc) {
         while (true) {
             String input = sc.nextLine().trim();
@@ -621,56 +548,49 @@ public class Main {
             System.out.print("Please enter yes or no: ");
         }
     }
-    
-    
-    
-    public static void runLaborDelivery (Scanner scnr) {
-    	
-    	System.out.println("Welcome to the Labor and Delivery department! \nWould you like to create a birth certificate for a new baby? (y/n)");
-    	
-    	String ans = scnr.nextLine().trim().toLowerCase();
+
+    public static void runLaborDelivery(Scanner scnr) {
+        System.out.println("Welcome to the Labor and Delivery department! \nWould you like to create a birth certificate for a new baby? (y/n)");
+
+        String ans = scnr.nextLine().trim().toLowerCase();
         while (!(ans.equals("y") || ans.equals("n"))) {
             System.out.print("Please enter y or n: ");
             ans = scnr.nextLine().trim().toLowerCase();
         }
-        
+
         if (ans.equals("y")) {
-        	
-        	boolean created = false;
-        	FileHandler fh = null;
-        	while (!created) {
-        		Random rand = new Random();
-        		try {
-        			fh = FileHandler.createFile("BC" + String.format("%04d", rand.nextInt(10000)) + ".txt");
-        			if (fh != null) {
-        				created = true;
-        			}
-        		} catch (IOException e) {
-        			System.out.println("Sorry, we couldn't create a new birth certificate file");
-        			return;
-        		}
-        	}
-        	
-        	LaborDelivery ld = new LaborDelivery("Iowa State Virtual Hospital", "Ames", "Iowa");
-        	ld.createBirthCertificate(scnr, fh);
-        	
-        	System.out.println("Would you like to send this birth certificate to the registrar's office to certify it? (y/n)");
-        	ans = scnr.nextLine().trim().toLowerCase();
+            boolean created = false;
+            FileHandler fh = null;
+            while (!created) {
+                Random rand = new Random();
+                try {
+                    fh = FileHandler.createFile("BC" + String.format("%04d", rand.nextInt(10000)) + ".txt");
+                    if (fh != null) {
+                        created = true;
+                    }
+                } catch (IOException e) {
+                    System.out.println("Sorry, we couldn't create a new birth certificate file");
+                    return;
+                }
+            }
+
+            LaborDelivery ld = new LaborDelivery("Iowa State Virtual Hospital", "Ames", "Iowa");
+            ld.createBirthCertificate(scnr, fh);
+
+            System.out.println("Would you like to send this birth certificate to the registrar's office to certify it? (y/n)");
+            ans = scnr.nextLine().trim().toLowerCase();
             while (!(ans.equals("y") || ans.equals("n"))) {
                 System.out.print("Please enter y or n: ");
                 ans = scnr.nextLine().trim().toLowerCase();
             }
-            
+
             if (ans.equals("y")) {
-            	LocalDate certDate = LocalDate.now().plusDays(50);
-            	ld.certifyBirthCertificate(fh, certDate); // simulated business delay
-            	System.out.println("Great! The birth certificate is certified on " + certDate.toString() + ".");
+                LocalDate certDate = LocalDate.now().plusDays(50);
+                ld.certifyBirthCertificate(fh, certDate);
+                System.out.println("Great! The birth certificate is certified on " + certDate.toString() + ".");
             }
-        	
         } else {
-        	System.out.println("Okay, have a nice day");
+            System.out.println("Okay, have a nice day");
         }
-    	
     }
-    
 }
