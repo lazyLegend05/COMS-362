@@ -200,6 +200,7 @@ public class Inventory {
 
         return true;
     }
+
     public boolean addNewMedicine(String medicineName, int quantity) {
         if (!isValidMedicineName(medicineName)) {
             System.out.println("Invalid medicine name.");
@@ -244,5 +245,64 @@ public class Inventory {
         }
 
         return true;
+    }
+
+    public boolean medicineExists(String medicineName) {
+        if (!isValidMedicineName(medicineName)) {
+            System.out.println("Invalid medicine name.");
+            return false;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                if (!isValidInventoryLine(line)) {
+                    System.out.println("Invalid inventory data found: " + line);
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                String name = parts[0].trim();
+
+                if (name.equalsIgnoreCase(medicineName.trim())) {
+                    return true;
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading inventory file.");
+        }
+
+        return false;
+    }
+
+    public int getQuantity(String medicineName) {
+        if (!isValidMedicineName(medicineName)) {
+            return -1;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                if (!isValidInventoryLine(line)) {
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                String name = parts[0].trim();
+                int qty = Integer.parseInt(parts[1].trim());
+
+                if (name.equalsIgnoreCase(medicineName.trim())) {
+                    return qty;
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading inventory file.");
+        }
+
+        return -1;
     }
 }
