@@ -25,6 +25,19 @@ public class FileHandler {
 
         return requestedName;
     }
+    
+    public static FileHandler createFile(String fileName) throws IOException {
+    	
+    	File file = new File(fileName);
+    	if (file.createNewFile()) {
+    		System.out.println(fileName + " has been created");
+    	} else {
+    		return null;
+    	}
+    	
+    	return new FileHandler(fileName);
+    	
+    }
 
     private boolean isValidString(String value) {
         return value != null && !value.trim().isEmpty();
@@ -46,6 +59,26 @@ public class FileHandler {
 
         } catch (IOException e) {
             System.out.println("Error saving record.");
+            return false;
+        }
+    }
+    
+    public boolean writeRecord(String record, boolean silent) {
+        if (!isValidString(record)) {
+            if (!silent) System.out.println("Cannot save an empty record.");
+            return false;
+        }
+
+        try (FileWriter fw = new FileWriter(fileName, true);
+            BufferedWriter bw = new BufferedWriter(fw)) {
+
+            bw.write(record.trim());
+            bw.newLine();
+            if (!silent) System.out.println("Record saved successfully.");
+            return true;
+
+        } catch (IOException e) {
+        	if (!silent) System.out.println("Error saving record.");
             return false;
         }
     }

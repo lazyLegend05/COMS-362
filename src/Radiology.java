@@ -29,21 +29,24 @@ public class Radiology {
 			ArrayList<LocalDateTime[]> times = new ArrayList<LocalDateTime[]>();
 			
 			String[] timeData = fields[2].substring(1, fields[2].length() - 1).split(";", -1);
-			for (String slot: timeData) {
+			if (!timeData[0].isEmpty()) {
+				for (String slot: timeData) {
 				
-				String[] dateData = slot.split("-", -1);
-				LocalDateTime start = parseDateStrings(dateData[0], dateData[1]);
-				LocalDateTime end = parseDateStrings(dateData[2], dateData[3]);;
-				
-				if (end.isBefore(LocalDateTime.now())) {
-					String record = line.replace(slot, "").replace(";;", "").replace("[;", "[").replace(";]", "]");
-					fh.updateRecord(fields[0], record);
+					String[] dateData = slot.split("-", -1);
+					LocalDateTime start = parseDateStrings(dateData[0], dateData[1]);
+					LocalDateTime end = parseDateStrings(dateData[2], dateData[3]);;
+					
+					if (end.isBefore(LocalDateTime.now())) {
+						String record = line.replace(slot, "").replace(";;", "").replace("[;", "[").replace(";]", "]");
+						fh.updateRecord(fields[0], record);
+					}
+					
+					LocalDateTime[] pair = {start, end};
+					times.add(pair);
+					
 				}
-				
-				LocalDateTime[] pair = {start, end};
-				times.add(pair);
-				
 			}
+			
 			
 			Machine machine = new Machine(fields[0], fields[1], times);
 			machines.add(machine);

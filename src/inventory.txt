@@ -1,7 +1,5 @@
-Paracetamol,100
-Ibuprofen,100
-Amoxicillin,100
-Cetirizine,100
-Melatonin,100
-Penicillin,50
-n,100
+Paracetamol,21
+Ibuprofen,15
+Amoxicillin,10
+Cetirizine,25
+Melatonin,40
